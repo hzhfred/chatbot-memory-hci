@@ -198,13 +198,13 @@ export default function Chat() {
 
 
       const summary = { id: uuidv4(), role: "summary", content: String(response), visible: true };
-      setMessages(prevMessages => [prevMessages.filter(msg => selected.find(s => s.id !== msg.id)), summary]);
+      setMessages(prevMessages => [...prevMessages, summary]);
 
     }).then(()=>{
       // const messagesnew = messages.map(msg =>
       //   selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
       // );
-      // setMessages(prevMessages => prevMessages.filter(msg => selected.find(s => s.id !== msg.id)));
+      setMessages(prevMessages => prevMessages.filter(msg => selected.find(s => s.id !== msg.id)));
 
       // setMessages(prevMessages => prevMessages.map(msg =>
       //   selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
