@@ -117,6 +117,7 @@ export default function Chat() {
   };
 
   const handleSelect = (message) => {
+    
     if (!selected.some(e => e.id === message.id)) {
       selected.push({ id: message.id, content: message.content, role: message.role, visible: message.visible })
       console.log(selected)
@@ -125,6 +126,7 @@ export default function Chat() {
       const unSelect = selected.filter(select => select.id !== message.id)
       setSelected(unSelect)
     }
+    console.log(selected)
   }
   
 
@@ -174,12 +176,23 @@ export default function Chat() {
           role: msg.role === "summary" ? "user" : msg.role,
           content: msg.content
       })), summaryMessage];
+      console.log(messageList)
+
+
+
 
     runLLM(messageList).then(response => { 
+
+      messagesnew = messages.map(msg =>
+        selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
+      );
+
       const summary = { id: uuidv4(), role: "summary", content: String(response), visible: true };
-      setMessages(prevMessages => [...prevMessages, summary]);
+      setMessages([messagesnew, summary]);
 
     });
+
+
 
   };
 
