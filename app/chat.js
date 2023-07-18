@@ -209,10 +209,11 @@ export default function Chat() {
 
       const selectedids = selected.map(s=>s.id)
       setMessages(prevMessages => prevMessages.filter(msg => !(selectedids.includes(msg.id))))
-
       // setMessages(prevMessages => prevMessages.map(msg =>
       //   selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
       // ));
+    }).then(()=>{
+      setSelected([])
     })
 
 
