@@ -167,7 +167,7 @@ export default function Chat() {
   const handleSummarize = async () => {
     const summaryMessage = {
       role: "user",
-      content: "Given the following messages so far, create a very concise summary.",
+      content: "Create a very concise summary of the above messages.",
     };
 
     const messageList = [...selected
@@ -190,7 +190,7 @@ export default function Chat() {
 
 
       const summary = { id: uuidv4(), role: "summary", content: String(response), visible: true };
-      setMessages([messages, summary]);
+      setMessages(prevMessages => [...prevMessages, summary]);
 
     }).then(()=>{
       const messagesnew = messages.map(msg =>
