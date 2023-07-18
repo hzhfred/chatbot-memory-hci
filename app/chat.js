@@ -178,18 +178,25 @@ export default function Chat() {
       })), summaryMessage];
       console.log(messageList)
 
-
+      // const messagesnew = messages.map(msg =>
+      //   selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
+      // );
+      // console.log('______')
+      // console.log(messagesnew)
 
 
     runLLM(messageList).then(response => { 
+      console.log(response)
 
+
+      const summary = { id: uuidv4(), role: "summary", content: String(response), visible: true };
+      setMessages([messages, summary]);
+
+    }).then(()=>{
       const messagesnew = messages.map(msg =>
         selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
       );
-
-      const summary = { id: uuidv4(), role: "summary", content: String(response), visible: true };
-      setMessages([messagesnew, summary]);
-
+      setMessages(messagesnew)
     });
 
 
