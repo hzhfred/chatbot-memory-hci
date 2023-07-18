@@ -183,7 +183,7 @@ export default function Chat() {
 
     runLLM(messageList).then(response => { 
 
-      messagesnew = messages.map(msg =>
+      const messagesnew = messages.map(msg =>
         selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
       );
 
