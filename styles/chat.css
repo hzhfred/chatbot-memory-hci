@@ -146,7 +146,7 @@
 }
 
 .message-wrapper:hover {
-  transform: scale(1.05); /* Added hover effect */
+  transform: scale(1.025); /* Added hover effect */
 }
 
 .message-actions:hover {
