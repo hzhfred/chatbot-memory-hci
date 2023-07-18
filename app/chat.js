@@ -17,7 +17,7 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-import { UndoIcon, KebabHorizontalIcon, TriangleRightIcon, PlusIcon, BookmarkFillIcon, BookmarkIcon } from '@primer/octicons-react';
+import { UndoIcon, KebabHorizontalIcon, TriangleRightIcon, PlusIcon, BookmarkFillIcon, BookmarkIcon,SquareIcon, StackIcon,CheckboxIcon } from '@primer/octicons-react';
 import { withCoalescedInvoke } from 'next/dist/lib/coalesced-function';
 
 export default function Chat() {
@@ -126,6 +126,7 @@ export default function Chat() {
       setSelected(unSelect)
     }
   }
+  
 
   const handleNewMessage = () => {
 
@@ -159,6 +160,27 @@ export default function Chat() {
     items.splice(result.destination.index, 0, reorderedItem);
 
     setMessages(items);
+  };
+
+  const handleSummarize = async () => {
+    const summaryMessage = {
+      role: "user",
+      content: "Given the following messages so far, create a very concise summary.",
+    };
+
+    const messageList = [...selected
+      .filter(msg => msg.visible)
+      .map(msg => ({
+          role: msg.role === "summary" ? "user" : msg.role,
+          content: msg.content
+      })), summaryMessage];
+
+    runLLM(messageList).then(response => { 
+      const summary = { id: uuidv4(), role: "summary", content: String(response), visible: true };
+      setMessages(prevMessages => [...prevMessages, summary]);
+
+    });
+
   };
 
   const handleSend = async () => {
@@ -328,12 +350,13 @@ export default function Chat() {
                                     </button>
                                   )}
                                   
-                                  {/* <button
-                                    onClick={(e) => {
-                                      handleSelect(msg)
-                                    }}>
-                                    {selected.some(e => e.id === msg.id) ? <BookmarkFillIcon size={16} /> : <BookmarkIcon size={16} />}
-                                  </button> */}
+                                  <button
+                                        className="message-actions"
+                                        onClick={(e) => {
+                                          handleSelect(msg)
+                                        }}>
+                                        {selected.some(e => e.id === msg.id) ? <CheckboxIcon size={16} /> : <SquareIcon size={24} />}
+                                  </button>
                                   
                                   <AnimatePresence>
                                     {dropdownMessageId === msg.id && dropdownOpen && (
@@ -382,6 +405,7 @@ export default function Chat() {
           <div className="input-container" style={{ marginTop: 'auto' }}>
             <button title='New Chat' onClick={handleChatReset} className='input-button'><UndoIcon size={16} /></button>
             <button title='Add Message' onClick={handleNewMessage} className='input-button'><PlusIcon size={24} /></button>
+            <button title='Summarize' onClick={() => handleSummarize()} className='input-button'><StackIcon size={16} /></button>
             <textarea
               ref={textAreaRef}
               type="text"
