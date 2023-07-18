@@ -204,13 +204,12 @@ export default function Chat() {
       // const messagesnew = messages.map(msg =>
       //   selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
       // );
-      const newMessages = messages.filter(msg => selected.find(s => s.id === msg.id));
-
+      setMessages(prevMessages => prevMessages.filter(msg => selected.find(s => s.id === msg.id)));
 
       // setMessages(prevMessages => prevMessages.map(msg =>
       //   selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
       // ));
-    });
+    })
 
 
 
