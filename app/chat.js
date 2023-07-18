@@ -4,7 +4,8 @@ import DropdownMenu from './components/DropdownMenu';
 import RoleDropdownMenu from './components/RoleDropdownMenu';
 import { runLLM } from './utils/api'; // Import API functions
 
-import { Checkbox } from 'antd';
+const { TextArea } = Input;
+import { Checkbox,Input } from 'antd';
 // import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 
 
@@ -59,8 +60,8 @@ export default function Chat() {
       textarea.focus();
 
       // Resize textarea to fit content
-      textarea.style.height = '20px';
-      textarea.style.height = `${textarea.scrollHeight - 10}px`;
+      // textarea.style.height = '20px';
+      // textarea.style.height = `${textarea.scrollHeight - 10}px`;
     }
   }, [editMessageId, edit]);
 
@@ -368,9 +369,9 @@ export default function Chat() {
                                 <div className="message-content">
                                   {editMessageId === msg.id ? (
                                     <div>
-                                      <textarea
-                                        style={{height:'100%'}}
+                                      <TextArea
                                         ref={editTextAreaRef}
+                                        autoSize
                                         className='edit-box'
                                         type='text'
                                         defaultValue={edit}
