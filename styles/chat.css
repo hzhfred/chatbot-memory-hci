@@ -243,7 +243,6 @@
 .edit-box {
   width: 100%;
   font-family: 'Inter', sans-serif;
-  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
   color: gray;
   font-size: 16px;
   background-color: whitesmoke;
@@ -259,7 +258,6 @@
   margin-right: 1em;
   resize: none;
   line-height: 20px;
-  /* height: 20px; */
   height: 100%;
   border-radius: 0.5em;
   overflow: hidden;

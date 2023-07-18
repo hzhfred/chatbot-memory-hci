@@ -369,6 +369,7 @@ export default function Chat() {
                                   {editMessageId === msg.id ? (
                                     <div>
                                       <textarea
+                                        style="width:100%;"
                                         ref={editTextAreaRef}
                                         className='edit-box'
                                         type='text'
