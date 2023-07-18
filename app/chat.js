@@ -193,6 +193,7 @@ export default function Chat() {
       // console.log(messagesnew)
 
 
+
     runLLM(messageList).then(response => { 
       console.log(response)
 
@@ -204,7 +205,10 @@ export default function Chat() {
       // const messagesnew = messages.map(msg =>
       //   selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
       // );
-      setMessages(prevMessages => prevMessages.filter(msg => selected.find(s => s.id !== msg.id)));
+      // setMessages(prevMessages => prevMessages.filter(msg => selected.find(s => s.id !== msg.id)));
+
+      const selectedids = selected.map(s=>s.id)
+      setMessages(prevMessages => prevMessages.filter(msg => !(selectedids.includes(msg.id))))
 
       // setMessages(prevMessages => prevMessages.map(msg =>
       //   selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
