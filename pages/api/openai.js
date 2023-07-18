@@ -21,7 +21,7 @@ export default async (req, res) => {
         messages: req.body.query,
         temperature: 1.0,
         top_p: 1.0,
-        // max_tokens: 30,
+        max_tokens: 170,
     });
 
     const response = completion.data.choices[0].message.content;
