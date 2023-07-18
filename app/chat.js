@@ -372,6 +372,7 @@ export default function Chat() {
                                       <TextArea
                                         ref={editTextAreaRef}
                                         autoSize
+                                        size='small'
                                         className='edit-box'
                                         type='text'
                                         defaultValue={edit}
