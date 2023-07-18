@@ -4,6 +4,10 @@ import DropdownMenu from './components/DropdownMenu';
 import RoleDropdownMenu from './components/RoleDropdownMenu';
 import { runLLM } from './utils/api'; // Import API functions
 
+import { Checkbox } from 'antd';
+// import type { CheckboxChangeEvent } from 'antd/es/checkbox';
+
+
 import 'styles/chat.css';
 import React, { useState, useEffect, useRef } from 'react';
 
@@ -116,17 +120,17 @@ export default function Chat() {
     };
   };
 
-  const handleSelect = (message) => {
-    
-    if (!selected.some(e => e.id === message.id)) {
+  const handleSelect = (checked,message) => {
+    // console.log('selected')
+    // console.log(selected)
+    if(checked && !selected.some(e => e.id === message.id)){
       selected.push({ id: message.id, content: message.content, role: message.role, visible: message.visible })
-      console.log(selected)
-    }
-    else {
+      // console.log(selected)
+    }else{
       const unSelect = selected.filter(select => select.id !== message.id)
       setSelected(unSelect)
     }
-    console.log(selected)
+
   }
   
 
@@ -165,6 +169,9 @@ export default function Chat() {
   };
 
   const handleSummarize = async () => {
+    // console.log('selected')
+    // console.log(selected)
+    // return
     const summaryMessage = {
       role: "user",
       content: "Create a very concise summary of the above messages.",
@@ -309,13 +316,16 @@ export default function Chat() {
                               <div className={msg.visible ? 'message-wrapper' : 'message-wrapper message-hidden'}>
                                 <div className="message-role">
                                   <div className='role-box'>
-                                  <button
+                                  <Checkbox onChange = {(e)=>
+                                    handleSelect(e.target.checked,msg)
+                                    }></Checkbox>
+                                  {/* <button
                                         className="message-actions"
                                         onClick={(e) => {
                                           handleSelect(msg)
                                         }}>
                                         {selected.some(e => e.id === msg.id) ? <CheckboxIcon size={16} /> : <SquareIcon size={24} />}
-                                  </button>
+                                  </button> */}
                                   <span className="role" onClick={(e) => {
                                     e.stopPropagation();
                                     handleRoleDropdownToggle(msg.id)
