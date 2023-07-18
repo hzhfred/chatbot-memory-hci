@@ -56,9 +56,9 @@ const DropdownMenu = ({ message, onClose, messages, setMessages, setDropdownMess
     <div className="dropdown-menu">
       <button title="Delete" onClick={deleteMessage}><TrashIcon size={16} /></button>
       <button title="Duplicate" onClick={duplicateMessage}><DuplicateIcon size={16} /></button>
-      <button title="Copy" onClick={copyText}>
+      {/* <button title="Copy" onClick={copyText}>
         {copyClicked ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
-      </button>
+      </button> */}
       <button title="Edit" onClick={editMessage}><PencilIcon size={16} /></button>
       <button title={message.visible ? "Hide" : "Show"} onClick={editVisibility}>
         {message.visible ? <EyeClosedIcon size={16} /> : <EyeIcon size={16} />}

@@ -28,7 +28,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  margin-bottom: 15px; /* Provide space between messages */
+  margin-bottom: 5px; /* Provide space between messages */
 }
 
 .message-role {
@@ -53,7 +53,7 @@
 .message-content {
   justify-content: space-between;
   text-align: left; /* Aligns text to the right */
-  width: 300px;
+  width: 400px;
   margin-right: 10px;
   word-wrap: break-word;
 }
@@ -274,7 +274,7 @@ li:hover .message-actions {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); /* Adds a slight shadow for depth */
   z-index: 1000; /* Ensures the dropdown appears on top of other elements */
   right: 1; /* Positions the dropdown menu to the right */
-  margin-top: -30px;
+  margin-top: -55px;
   margin-left: 40px;
 }
 
