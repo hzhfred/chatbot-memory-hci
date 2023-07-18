@@ -65,7 +65,7 @@
 }
 
 .message-actions {
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.2s ease-in-out;
   transition: transform 0.1s ease-in-out;
   background: none; /* Removes the default button background */
@@ -81,12 +81,13 @@
   position: relative;
 }
 
-li:hover .message-actions {
-  opacity: 1; /* Show the button on hover */
-}
+/* li:hover .message-actions {
+  opacity: 1; /* Show the button on hover 
+} */
 
 .role {
   font-weight: 600; /* Make text bolder */
+  margin-left: 5px;
 }
 
 .role:hover {
@@ -130,6 +131,10 @@ li:hover .message-actions {
   margin-bottom: 0.2em;
   margin-top: 0.2em;
   transition: transform 0.1s ease-in-out;
+}
+
+.role-box{
+  display: flex;
 }
 
 .role-dropdown-menu button:hover {
@@ -264,18 +269,18 @@ li:hover .message-actions {
 }
 
 .dropdown-menu {
-  position: absolute; /* Positions the dropdown relative to the nearest positioned ancestor */
+  /* position: absolute; */
   display: flex;
-  flex-direction: row; /* Aligns the items vertically */
-  background-color: #fff; /* Changes the background color to white */
-  padding: 5px; /* Adds a little space around the items */
-  border: 1px solid #ffffff; /* Adds a light gray border */
-  border-radius: 5px; /* Rounds the corners */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); /* Adds a slight shadow for depth */
-  z-index: 1000; /* Ensures the dropdown appears on top of other elements */
-  right: 1; /* Positions the dropdown menu to the right */
-  margin-top: -55px;
-  margin-left: 40px;
+  flex-direction: row;
+  /* background-color: #fff; */
+  padding: 5px;
+  /* border: 1px solid #ffffff; */
+  border-radius: 5px;
+  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); */
+  z-index: 1000;
+  right: 1;
+  /* margin-top: -55px; */
+  /* margin-left: 40px; */
 }
 
 .dropdown-menu button {

@@ -308,12 +308,21 @@ export default function Chat() {
                             <li {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef} onMouseEnter={() => handleMouseEnter(msg.id)} onMouseLeave={handleMouseLeave}>
                               <div className={msg.visible ? 'message-wrapper' : 'message-wrapper message-hidden'}>
                                 <div className="message-role">
+                                  <div className='role-box'>
+                                  <button
+                                        className="message-actions"
+                                        onClick={(e) => {
+                                          handleSelect(msg)
+                                        }}>
+                                        {selected.some(e => e.id === msg.id) ? <CheckboxIcon size={16} /> : <SquareIcon size={24} />}
+                                  </button>
                                   <span className="role" onClick={(e) => {
                                     e.stopPropagation();
                                     handleRoleDropdownToggle(msg.id)
                                   }}>
                                     {msg.role}
                                   </span>
+                                  </div>
                                   <AnimatePresence>
                                     {roleDropdownId === msg.id && roleDropdownOpen && (
                                       <motion.div
@@ -330,6 +339,21 @@ export default function Chat() {
                                       </motion.div>
                                     )}
                                   </AnimatePresence>
+                                  <DropdownMenu
+                                          className='dropdown-menu'
+                                          message={msg}
+                                          onClose={handleDropdownToggle}
+                                          messages={messages}
+                                          setMessages={setMessages}
+                                          setDropdownMessageId={setDropdownMessageId}
+                                          setDropdownOpen={setDropdownOpen}
+                                          setEditMessageId={setEditMessageId}
+                                          setEdit={setEdit}
+                                          // setSelect={handleSelect}
+                                          // selected={selected}
+                                        />
+
+
                                 </div>
                                 <div className="message-content">
                                   {editMessageId === msg.id ? (
@@ -363,7 +387,7 @@ export default function Chat() {
                                     </div>
                                   )}
                                 </div>
-                                <div className="action-wrapper">
+                                {/* <div className="action-wrapper">
                                   {((dropdownMessageId === msg.id) || hoveredMessageId === msg.id) && (
                                     <button className="message-actions" onClick={(e) => {
                                       handleDropdownToggle(msg.id)
@@ -402,7 +426,7 @@ export default function Chat() {
                                       </motion.div>
                                     )}
                                   </AnimatePresence>
-                                </div>
+                                </div> */}
                               </div>
                             </li>
                           </motion.li>

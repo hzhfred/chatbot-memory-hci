@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { TrashIcon, DuplicateIcon, CheckIcon, CopyIcon, PencilIcon, EyeClosedIcon, EyeIcon } from '@primer/octicons-react';
+import { UndoIcon, KebabHorizontalIcon, TriangleRightIcon, PlusIcon, BookmarkFillIcon, BookmarkIcon,SquareIcon, StackIcon,CheckboxIcon } from '@primer/octicons-react';
 
-const DropdownMenu = ({ message, onClose, messages, setMessages, setDropdownMessageId, setDropdownOpen, setEditMessageId, setEdit }) => {
+const DropdownMenu = ({ message, onClose, messages, setMessages, setDropdownMessageId, setDropdownOpen, setEditMessageId, setEdit, handleSelect, selected }) => {
 
   const [copyClicked, setCopyClicked] = useState(false);
 
@@ -59,7 +60,7 @@ const DropdownMenu = ({ message, onClose, messages, setMessages, setDropdownMess
       {/* <button title="Copy" onClick={copyText}>
         {copyClicked ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
       </button> */}
-      <button title="Edit" onClick={editMessage}><PencilIcon size={16} /></button>
+      {/* <button title="Edit" onClick={editMessage}><PencilIcon size={16} /></button> */}
       <button title={message.visible ? "Hide" : "Show"} onClick={editVisibility}>
         {message.visible ? <EyeClosedIcon size={16} /> : <EyeIcon size={16} />}
       </button>
