@@ -287,7 +287,7 @@ export default function Chat() {
             animate="visible"
             exit="exit"
           >
-            ChatHCI
+            Memory Sandbox
           </motion.div>
         }
       </AnimatePresence>
