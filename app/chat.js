@@ -2,28 +2,21 @@
 
 import DropdownMenu from './components/DropdownMenu';
 import RoleDropdownMenu from './components/RoleDropdownMenu';
-import { runLLM } from './utils/api'; // Import API functions
-
+import { runLLM } from './utils/api';
 const { TextArea } = Input;
-import { Checkbox,Input } from 'antd';
-// import type { CheckboxChangeEvent } from 'antd/es/checkbox';
-
-
+import { LoadingOutlined } from '@ant-design/icons';
+const antIcon = <LoadingOutlined className='typing-indicator' spin />;
+import { Checkbox, Input, Spin } from 'antd';
 import 'styles/chat.css';
 import React, { useState, useEffect, useRef } from 'react';
-
 import { v4 as uuidv4 } from 'uuid';
-
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from "framer-motion";
 import remarkGfm from 'remark-gfm';
-
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
-
-import { UndoIcon, KebabHorizontalIcon, TriangleRightIcon, PlusIcon, BookmarkFillIcon, BookmarkIcon,SquareIcon, StackIcon,CheckboxIcon } from '@primer/octicons-react';
-import { withCoalescedInvoke } from 'next/dist/lib/coalesced-function';
+import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon } from '@primer/octicons-react';
 
 export default function Chat() {
   const [message, setMessage] = useState("");
@@ -40,18 +33,8 @@ export default function Chat() {
   const textAreaRef = useRef(null);
   const editTextAreaRef = useRef(null);
 
-  /*
-  //click out of edit to cancel and restore initial message
   useEffect(() => {
-    document.addEventListener("mousedown", () => {
-      setDropdownOpen(false);
-      setRoleDropdownOpen(false);
-    })
-  });
-  */
-
-  useEffect(() => {
-    textAreaRef.current.style.height = '20px'; // Replace with your desired initial height
+    textAreaRef.current.style.height = '20px';
   }, [])
 
   useEffect(() => {
@@ -59,9 +42,6 @@ export default function Chat() {
       const textarea = editTextAreaRef.current;
       textarea.focus();
 
-      // Resize textarea to fit content
-      // textarea.style.height = '20px';
-      // textarea.style.height = `${textarea.scrollHeight - 10}px`;
     }
   }, [editMessageId, edit]);
 
@@ -122,16 +102,13 @@ export default function Chat() {
   };
 
   const handleSelect = (checked,message) => {
-    // console.log('selected')
-    // console.log(selected)
+
     if(checked && !selected.some(e => e.id === message.id)){
       selected.push({ id: message.id, content: message.content, role: message.role, visible: message.visible })
-      // console.log(selected)
-    }else{
+    } else {
       const unSelect = selected.filter(select => select.id !== message.id)
       setSelected(unSelect)
     }
-
   }
   
 
@@ -170,9 +147,7 @@ export default function Chat() {
   };
 
   const handleSummarize = async () => {
-    // console.log('selected')
-    // console.log(selected)
-    // return
+
     const summaryMessage = {
       role: "user",
       content: "Create a very concise summary of the above messages.",
@@ -186,13 +161,6 @@ export default function Chat() {
       })), summaryMessage];
       console.log(messageList)
 
-      // const messagesnew = messages.map(msg =>
-      //   selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
-      // );
-      // console.log('______')
-      // console.log(messagesnew)
-
-
     runLLM(messageList).then(response => { 
       console.log(response)
 
@@ -201,23 +169,18 @@ export default function Chat() {
       setMessages(prevMessages => [...prevMessages, summary]);
 
     }).then(()=>{
-      // const messagesnew = messages.map(msg =>
-      //   selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
-      // );
+
       setMessages(prevMessages => prevMessages.map(msg =>
         selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
       ));
     });
-
-
-
   };
 
   const handleSend = async () => {
 
     const systemMessage = {
       role: "system",
-      content: "You are a design bot that helps designers think through stakeholders, goals, obstacles, and solutions. Respond in full markdown format with emojis. Respond as conversationally and concisely as possible.",
+      content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
     };
 
     const prompt = message.trim();
@@ -255,7 +218,6 @@ export default function Chat() {
         return newMessages;
       });
     }
-
   };
 
   const components = {
@@ -308,25 +270,20 @@ export default function Chat() {
                             ref={provided.innerRef}
                             onMouseEnter={() => handleMouseEnter(msg.id)}
                             onMouseLeave={handleMouseLeave}
-                            initial={{ opacity: 0, y: 10 }} // animate from
-                            animate={{ opacity: 1, y: 0 }} // animate to
-                            exit={{ opacity: 0, x: -10 }} // animate out
-                            transition={{ duration: 0.5, ease: "easeInOut" }} // animation duration
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            transition={{ duration: 0.5, ease: "easeInOut" }}
                           >
                             <li {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef} onMouseEnter={() => handleMouseEnter(msg.id)} onMouseLeave={handleMouseLeave}>
                               <div className={msg.visible ? 'message-wrapper' : 'message-wrapper message-hidden'}>
                                 <div className="message-role">
                                   <div className='role-box'>
-                                  <Checkbox onChange = {(e)=>
+                                  <Checkbox 
+                                    onChange = {(e)=>
                                     handleSelect(e.target.checked,msg)
-                                    }></Checkbox>
-                                  {/* <button
-                                        className="message-actions"
-                                        onClick={(e) => {
-                                          handleSelect(msg)
-                                        }}>
-                                        {selected.some(e => e.id === msg.id) ? <CheckboxIcon size={16} /> : <SquareIcon size={24} />}
-                                  </button> */}
+                                    }
+                                  ></Checkbox>
                                   <span className="role" onClick={(e) => {
                                     e.stopPropagation();
                                     handleRoleDropdownToggle(msg.id)
@@ -360,15 +317,10 @@ export default function Chat() {
                                           setDropdownOpen={setDropdownOpen}
                                           setEditMessageId={setEditMessageId}
                                           setEdit={setEdit}
-                                          // setSelect={handleSelect}
-                                          // selected={selected}
                                         />
-
-
                                 </div>
                                 <div className="message-content">
                                   {editMessageId === msg.id ? (
-                                    <div>
                                       <TextArea
                                         ref={editTextAreaRef}
                                         autoSize
@@ -384,7 +336,6 @@ export default function Chat() {
                                           }
                                         }}
                                       />
-                                    </div>
                                   ) : (
                                     <div className='message-text' onClick={e => {
                                       setEdit(msg.content.toLowerCase());
@@ -400,46 +351,6 @@ export default function Chat() {
                                     </div>
                                   )}
                                 </div>
-                                {/* <div className="action-wrapper">
-                                  {((dropdownMessageId === msg.id) || hoveredMessageId === msg.id) && (
-                                    <button className="message-actions" onClick={(e) => {
-                                      handleDropdownToggle(msg.id)
-                                    }}>
-                                      <KebabHorizontalIcon />
-                                    </button>
-                                  )}
-                                  
-                                  <button
-                                        className="message-actions"
-                                        onClick={(e) => {
-                                          handleSelect(msg)
-                                        }}>
-                                        {selected.some(e => e.id === msg.id) ? <CheckboxIcon size={16} /> : <SquareIcon size={24} />}
-                                  </button>
-                                  
-                                  <AnimatePresence>
-                                    {dropdownMessageId === msg.id && dropdownOpen && (
-                                      <motion.div
-                                        initial={{ opacity: 0, scale: 0.95, x: -10 }}
-                                        animate={{ opacity: 1, scale: 1, x: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95, x: -10 }}
-                                        transition={{ duration: 0.1 }}
-                                      >
-                                        <DropdownMenu
-                                          className='dropdown-menu'
-                                          message={msg}
-                                          onClose={handleDropdownToggle}
-                                          messages={messages}
-                                          setMessages={setMessages}
-                                          setDropdownMessageId={setDropdownMessageId}
-                                          setDropdownOpen={setDropdownOpen}
-                                          setEditMessageId={setEditMessageId}
-                                          setEdit={setEdit}
-                                        />
-                                      </motion.div>
-                                    )}
-                                  </AnimatePresence>
-                                </div> */}
                               </div>
                             </li>
                           </motion.li>
@@ -449,11 +360,7 @@ export default function Chat() {
                   )}
                   {provided.placeholder}
                   {isTyping && (
-                    <div className="typing-indicator">
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
+                    <Spin indicator={antIcon} />
                   )}
                 </ul>
               )}
