@@ -1,395 +1,400 @@
-'use client';
-
-import DropdownMenu from './components/DropdownMenu';
-import RoleDropdownMenu from './components/RoleDropdownMenu';
-import { runLLM } from './utils/api';
-const { TextArea } = Input;
-import { LoadingOutlined } from '@ant-design/icons';
-const antIcon = <LoadingOutlined className='typing-indicator' spin />;
-import { Checkbox, Input, Spin } from 'antd';
-import 'styles/chat.css';
-import React, { useState, useEffect, useRef } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import ReactMarkdown from 'react-markdown';
-import { motion, AnimatePresence } from "framer-motion";
-import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon } from '@primer/octicons-react';
-
-export default function Chat() {
-const [message, setMessage] = useState("");
-const [messages, setMessages] = useState([]);
-const [editMessageId, setEditMessageId] = useState(null);
-const [edit, setEdit] = useState("")
-const [hoveredMessageId, setHoveredMessageId] = useState(null);
-const [dropdownMessageId, setDropdownMessageId] = useState(null);
-const [dropdownOpen, setDropdownOpen] = useState(false);
-const [roleDropdownId, setRoleDropdownId] = useState(null);
-const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
-const [isTyping, setIsTyping] = useState(false);
-const [selected, setSelected] = useState([]);
-const textAreaRef = useRef(null);
-const editTextAreaRef = useRef(null);
-
-useEffect(() => {
-textAreaRef.current.style.height = '20px';
-}, [])
-
-useEffect(() => {
-if (editMessageId && editTextAreaRef.current) {
-const textarea = editTextAreaRef.current;
-textarea.focus();
-
-}
-}, [editMessageId, edit]);
-
-const handleMouseEnter = (id) => {
-setHoveredMessageId(id);
-};
-
-const handleMouseLeave = () => {
-setHoveredMessageId(null);
-};
-
-const handleInputChange = (e) => {
-setMessage(e.target.value);
-e.target.style.height = '20px';
-e.target.style.height = `${e.target.scrollHeight - 10}px`;
-};
-
-const handleEditChange = (e) => {
-setEdit(e.target.value);
-e.target.style.height = '20px';
-e.target.style.height = `${e.target.scrollHeight - 10}px`;
-};
-
-const handleEdit = (index, edit) => {
-const newMessages = [...messages];
-newMessages[index].content = edit;
-setMessages(newMessages);
-setEditMessageId(null);
-setEdit('');
-};
-
-const handleDropdownToggle = (id) => {
-if (dropdownOpen) {
-setDropdownMessageId(null);
-setDropdownOpen(false);
-if (dropdownMessageId != id) {
-setDropdownMessageId(id);
-setDropdownOpen(true);
-};
-} else {
-setDropdownMessageId(id);
-setDropdownOpen(true);
-};
-};
-
-const handleRoleDropdownToggle = (id) => {
-if (roleDropdownOpen) {
-setRoleDropdownId(null);
-setRoleDropdownOpen(false);
-if (roleDropdownId != id) {
-setRoleDropdownId(id);
-setRoleDropdownOpen(true);
-};
-} else {
-setRoleDropdownId(id);
-setRoleDropdownOpen(true);
-};
-};
-
-const handleSelect = (checked,message) => {
-
-if(checked && !selected.some(e => e.id === message.id)){
-selected.push({ id: message.id, content: message.content, role: message.role, visible: message.visible })
-} else {
-const unSelect = selected.filter(select => select.id !== message.id)
-setSelected(unSelect)
-}
+.chat-container {
+display: flex;
+align-items: center;
+flex-direction: column;
+justify-content: center;
+min-height: 100vh; /* Adjust this as needed */
+color: rgb(61, 61, 61);
 }
 
-
-const handleNewMessage = () => {
-
-let emptyMessage;
-
-if (messages.length === 0 || (messages[messages.length - 1].role === "assistant")) {
-emptyMessage = { id: uuidv4(), role: "user", content: "", visible: true };
-} else {
-emptyMessage = { id: uuidv4(), role: "assistant", content: "", visible: true };
-};
-
-setMessages(prevMessages => [...prevMessages, emptyMessage]);
+.input-container {
+display: flex;
+gap: 10px; /* Provides space between the elements */
+margin-left: auto;
+margin-right: auto;
+margin-top: 1em;
+padding-bottom: 1em;
 }
 
-const handleChatReset = () => {
-setMessages([]);
-setEditMessageId(null);
-setEdit("")
-setHoveredMessageId(null);
-setDropdownMessageId(null);
-setDropdownOpen(false);
-setIsTyping(false);
-setSelected([]);
-};
-
-
-const handleOnDragEnd = (result) => {
-if (!result.destination) return;
-
-const items = Array.from(messages);
-const [reorderedItem] = items.splice(result.source.index, 1);
-items.splice(result.destination.index, 0, reorderedItem);
-
-setMessages(items);
-};
-
-const handleSummarize = async () => {
-
-const summaryMessage = {
-role: "user",
-content: "Create a very concise summary of the above messages.",
-};
-
-const messageList = [...selected
-.filter(msg => msg.visible)
-.map(msg => ({
-role: msg.role === "summary" ? "user" : msg.role,
-content: msg.content
-})), summaryMessage];
-console.log(messageList)
-
-runLLM(messageList).then(response => { 
-console.log(response)
-
-
-const summary = { id: uuidv4(), role: "summary", content: String(response), visible: true };
-setMessages(prevMessages => [...prevMessages, summary]);
-
-}).then(()=>{
-
-setMessages(prevMessages => prevMessages.map(msg =>
-selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
-));
-});
-};
-
-const handleSend = async () => {
-
-const systemMessage = {
-role: "system",
-content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
-};
-
-const prompt = message.trim();
-const userMessage = { id: uuidv4(), role: "user", content: String(prompt), visible: true };
-const visibleMessages = messages.filter(msg => msg.visible && (msg.content !== ""))
-
-if (prompt === "" && visibleMessages.length === 0) {
-return;
-} else {
-setMessages(prevMessages => {
-
-const newMessages = [...prevMessages]
-
-if (prompt !== "") {
-newMessages.push(userMessage);
+.input-container input {
+flex-grow: 1; /* Allows the input to take up remaining space */
 }
 
-setMessage("");
-
-const messageList = [systemMessage, ...newMessages
-.filter(msg => msg.visible)
-.map(msg => ({
-role: msg.role,
-content: msg.content
-}))];
-
-setIsTyping(true);
-
-runLLM(messageList).then(response => {
-setIsTyping(false);
-const assistantMessage = { id: uuidv4(), role: "assistant", content: String(response), visible: true }
-setMessages(prevMessages => [...prevMessages, assistantMessage]);
-});
-
-return newMessages;
-});
-}
-};
-
-const components = {
-code({ node, inline, className, children, ...props }) {
-const match = /language-(\w+)/.exec(className || '')
-return !inline && match ? (
-<SyntaxHighlighter wrapLines={true} style={coy} language={match[1]} PreTag="div" children={String(children).replace(/\n$/, '')} {...props} />
-) : (
-<code className={className} {...props}>
-{children}
-</code>
-)
-}
+.message-list {
+padding: 0; /* Remove padding */
+width: fit-content; /* Shrink wrap content */
 }
 
-const titleVariants = {
-hidden: { opacity: 0, y: -50, x: -65 },
-visible: { opacity: 0.1, y: -200, x: -65, transition: { duration: 0.2 } },
-exit: { opacity: 0, y: -300, transition: { duration: 0.2 } }
+.message-list li {
+display: flex;
+justify-content: center;
+align-items: flex-start;
+margin-bottom: 0.7em; /* Provide space between messages */
 }
 
-return (
-<div className="chat-container">
-<AnimatePresence>
-{messages.length === 0 &&
-<motion.div
-className="title"
-variants={titleVariants}
-initial="hidden"
-animate="visible"
-exit="exit"
->
-Memory Sandbox
-</motion.div>
+.message-role {
+margin-right: 20px; /* Provide space between role and content */
+width: 100px; /* Set this to a suitable value for your needs */
+text-align: left; /* Aligns text to the right */
 }
-</AnimatePresence>
-<div className="flex-container">
-<motion.div layoutId='message-list' className="message-list">
-<DragDropContext onDragEnd={handleOnDragEnd}>
-<Droppable droppableId="messages">
-{(provided) => (
-<ul className="message-list" {...provided.droppableProps} ref={provided.innerRef}>
-{messages.map((msg, index) =>
-<Draggable key={msg.id} draggableId={msg.id} index={index} >
-{(provided) => (
-<AnimatePresence>
-<motion.li
-{...provided.draggableProps}
-{...provided.dragHandleProps}
-ref={provided.innerRef}
-onMouseEnter={() => handleMouseEnter(msg.id)}
-onMouseLeave={handleMouseLeave}
-initial={{ opacity: 0, y: 10 }}
-animate={{ opacity: 1, y: 0 }}
-exit={{ opacity: 0, x: -10 }}
-transition={{ duration: 0.5, ease: "easeInOut" }}
->
-<li {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef} onMouseEnter={() => handleMouseEnter(msg.id)} onMouseLeave={handleMouseLeave}>
-<div className={msg.visible ? 'message-wrapper' : 'message-wrapper message-hidden'}>
-<div className="message-role">
-<div className='role-box'>
-<Checkbox 
-onChange = {(e)=>
-handleSelect(e.target.checked,msg)
+
+.message-wrapper {
+font-size: 16px;
+display: flex;
+align-items: left;
+transition: transform 0.2s ease-in-out;
+box-shadow: rgba(0, 0, 0, 0.1) 0px 5px 15px;
+padding-left: 20px;
+padding-top: 25px;
+padding-bottom: 10px;
+border-radius: 20px;
 }
-></Checkbox>
-<span className="role" onClick={(e) => {
-e.stopPropagation();
-handleRoleDropdownToggle(msg.id)
-}}>
-{msg.role}
-</span>
-</div>
-<AnimatePresence>
-{roleDropdownId === msg.id && roleDropdownOpen && (
-<motion.div
-initial={{ opacity: 0, scale: 0.95, y: -5 }}
-animate={{ opacity: 1, scale: 1, y: 0 }}
-exit={{ opacity: 0, scale: 0.95, y: -5 }}
-transition={{ duration: 0.1 }}
->
-<RoleDropdownMenu
-className='role-dropdown-menu'
-message={msg}
-onClose={handleRoleDropdownToggle}
-/>
-</motion.div>
-)}
-</AnimatePresence>
-<DropdownMenu
-className='dropdown-menu'
-message={msg}
-onClose={handleDropdownToggle}
-messages={messages}
-setMessages={setMessages}
-setDropdownMessageId={setDropdownMessageId}
-setDropdownOpen={setDropdownOpen}
-setEditMessageId={setEditMessageId}
-setEdit={setEdit}
-/>
-</div>
-<div className="message-content">
-{editMessageId === msg.id ? (
-<TextArea
-ref={editTextAreaRef}
-autoSize
-size='small'
-className='edit-box'
-type='text'
-defaultValue={edit}
-onChange={e => { handleEditChange(e) }}
-onKeyDown={e => {
-if (e.key === 'Enter' && !e.shiftKey) {
-e.preventDefault();
-handleEdit(index, edit);
+
+.message-content {
+color: rgb(110, 110, 110);
+justify-content: space-between;
+text-align: left; /* Aligns text to the right */
+width: 400px;
+margin-top: 0.3em;
+margin-left: 0.5em;
+margin-bottom: 0.3em;
+word-wrap: break-word;
 }
-}}
-/>
-) : (
-<div className='message-text' onClick={e => {
-setEdit(msg.content.toLowerCase());
-setEditMessageId(msg.id);
-}}>
-<div className="markdown-container">
-{
-msg.content.trim() !== '' ?
-<ReactMarkdown components={components} children={msg.content.toLowerCase().split('\n').map(line => line + '  ').join('\n')} remarkPlugins={remarkGfm} /> :
-<p className='placeholder-markdown' >type a message...</p>
+
+.action-wrapper {
+min-width: 30px; /* Set this to a suitable value for your needs */
+min-height: 30px;
+text-align: right; /* Aligns button to the right */
 }
-</div>
-</div>
-)}
-</div>
-</div>
-</li>
-</motion.li>
-</AnimatePresence>
-)}
-</Draggable>
-)}
-{provided.placeholder}
-{isTyping && (
-<Spin indicator={antIcon} />
-)}
-</ul>
-)}
-</Droppable>
-</DragDropContext>
-</motion.div>
-<motion.div layoutId="input-container" layout transition={{ duration: 0.5 }} className="input-container">
-<div className="input-container" style={{ marginTop: 'auto' }}>
-<button title='New Chat' onClick={handleChatReset} className='input-button'><UndoIcon size={16} /></button>
-<button title='Add Message' onClick={handleNewMessage} className='input-button'><PlusIcon size={24} /></button>
-<button title='Summarize' onClick={() => handleSummarize()} className='input-button'><StackIcon size={16} /></button>
-<textarea
-ref={textAreaRef}
-type="text"
-className='input-box'
-value={message}
-onChange={handleInputChange}
-onKeyDown={e => {
-if (e.key === 'Enter' && !e.shiftKey) {
-e.preventDefault();
-handleSend();
+
+.message-actions {
+opacity: 1;
+transition: opacity 0.2s ease-in-out;
+transition: transform 0.1s ease-in-out;
+background: none; /* Removes the default button background */
+border: none; /* Removes the default button border */
+cursor: pointer; /* Changes the cursor to a hand when hovering over the button */
+color: darkgray; /* Changes the color of the button */
+font-size: 20px; /* Changes the size of the button */
+padding-right: 0px; /* Removes the default button padding */
+margin-left: 0px; /* Adds a bit of space between the message and the button */
+display: flex; /* Makes sure the button contents are centered */
+align-items: center; /* Vertically center the content */
+justify-content: center; /* Horizontally center the content */
+position: relative;
 }
-}}
-/>
-<button title='Send' onClick={handleSend} className='input-button'><TriangleRightIcon size={24} /></button>
-</div>
-</motion.div>
-</div>
-</div>
-);
+
+/* li:hover .message-actions {
+opacity: 1; /* Show the button on hover 
+} */
+
+.role {
+color: rgb(110, 110, 110);
+font-weight: 600; /* Make text bolder */
+margin-left: 15px;
+padding-left: 5px;
+padding-right: 5px;
+margin-left: 7px;
+border-radius: 8px;
+}
+
+.role:hover {
+cursor: pointer;
+background-color: whitesmoke;
+}
+
+.role-dropdown-menu {
+cursor: pointer;
+position: absolute; /* Positions the dropdown relative to the nearest positioned ancestor */
+display: flex;
+flex-direction: row; /* Aligns the items vertically */
+background-color: #fff; /* Changes the background color to white */
+padding: 3px; /* Adds a little space around the items */
+border: 1px solid #ffffff; /* Adds a light gray border */
+border-radius: 0.7em; /* Rounds the corners */
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
+z-index: 1000; /* Ensures the dropdown appears on top of other elements */
+margin-top: 5px;
+margin-left: 0px;
+}
+
+.role-dropdown-menu button {
+font-weight: 500;
+color: grey;
+border-radius: 0.7em; /* Rounds the corners */
+background-color: #f6f6f6; /* Changes the background color when hovered */
+border: none; /* Removes the default button border */
+cursor: pointer; /* Changes the cursor to a hand when hovering over the button */
+text-align: left; /* Aligns the text to the left */
+padding: 0.5em; /* Adds some space around the text */
+margin-left: 0.3em;
+margin-right: 0.3em;
+margin-bottom: 0.2em;
+margin-top: 0.2em;
+transition: transform 0.1s ease-in-out;
+}
+
+.role-box{
+display: flex;
+}
+
+.role-dropdown-menu button:hover {
+transform: scale(1.15); /* Added hover effect */
+}
+
+.role-dropdown-menu button:active {
+transform: scale(0.9);
+}
+
+.message-wrapper:hover {
+transform: scale(1.025); /* Added hover effect */
+}
+
+.message-actions:hover {
+transform: scale(1.1); /* Added hover effect */
+background-color: whitesmoke;
+padding-left: 5px;
+padding-right: 5px;
+border-radius: 5px;
+color: grey;
+}
+
+.message-actions:active {
+transform: scale(0.8);
+}
+
+.message-text {
+font-family: 'Inter', sans-serif;
+transition: transform 0.1s ease-in-out;
+cursor: text;
+margin-left: -1em;
+padding-left: 1em;
+padding-bottom: -8em;
+padding-right: 1em;
+padding-top: 1em;
+margin-top: -1em;
+margin-right: 1em;
+border-radius: 0.5em;
+color: rgb(110, 110, 110);
+}
+
+.message-text:hover {
+background-color: rgb(250, 250, 250);
+}
+
+.input-container button {
+/* font-family: var(--font-mono); */
+transition: transform 0.1s ease-in-out;
+background-color: rgb(219, 219, 219);
+border: none; /* Removes the default button border */
+cursor: pointer; /* Changes the cursor to a hand when hovering over the button */
+outline: none; /* Removes the focus outline */
+padding: 1; /* Removes the default button padding */
+display: flex; /* Makes sure the button contents are centered */
+align-items: center; /* Vertically center the content */
+justify-content: center; /* Horizontally center the content */
+height: 30px;
+width: 40px;
+border-radius: 8px;
+}
+
+.input-container button:hover {
+color: gray;
+}
+
+.input-button:hover {
+transform: scale(1.07); /* Added hover effect */
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); /* Adds a slight shadow for depth */
+}
+
+.input-button:active {
+transform: scale(0.9);
+}
+
+.input-button {
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
+font-size: 16px;
+width: 50px;
+color: darkgray;
+}
+
+.input-box:hover, .input-box:focus {
+width: 250px;
+}
+
+.input-box {
+width: 200px; /* Set an initial width */
+transition: width 0.3s ease-in-out;
+font-family: 'Inter', sans-serif;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
+color: gray;
+font-size: 16px;
+background-color: rgb(219, 219, 219);
+border: none;
+outline: none;
+padding-left: 10px;
+padding-right: 10px;
+padding-top: 5px;
+padding-bottom: 5px;
+resize: none;
+overflow: hidden;
+line-height: 20px;
+height: 20px;
+border-radius: 8px;
+}
+
+.edit-box {
+width: 100%;
+font-family: 'Inter', sans-serif;
+color: rgb(110, 110, 110);
+font-size: 16px;
+background-color: whitesmoke;
+border: none;
+outline: none;
+padding-left: 1em;
+padding-right: -1em;
+padding-top: 0.5em;
+padding-bottom: 0.8em;
+margin-top: -1em;
+margin-bottom: 0.1em;
+margin-left: -1em;
+margin-right: 1em;
+resize: both;
+
+border-radius: 0.5em;
+overflow: hidden;
+}
+
+.role-icon {
+font-size: 10px;
+}
+
+.dropdown-menu {
+/* position: absolute; */
+display: flex;
+flex-direction: row;
+/* background-color: #fff; */
+padding: 5px;
+padding-left: 0px;
+/* border: 1px solid #ffffff; */
+border-radius: 5px;
+/* box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); */
+z-index: 1000;
+right: 1;
+/* margin-top: -55px; */
+/* margin-left: 40px; */
+}
+
+.dropdown-menu button {
+text-align: center;
+color: rgb(199, 199, 199);
+background: none; /* Removes the default button background */
+border: none; /* Removes the default button border */
+cursor: pointer; /* Changes the cursor to a hand when hovering over the button */
+text-align: left; /* Aligns the text to the left */
+padding: 0.5em; /* Adds some space around the text */
+transition: transform 0.1s ease-in-out;
+}
+
+.dropdown-menu button:hover {
+color: grey;
+text-align: center;
+border-radius: 0.5em; /* Rounds the corners */
+background-color: #f6f6f6; /* Changes the background color when hovered */
+}
+
+.dropdown-menu button:active {
+transform: scale(0.9);
+}
+
+.title {
+opacity: 10%;
+font-size: 25px; 
+font-weight: 650;
+position: absolute;
+top: 50%;
+left: 47%;
+text-align: center;
+justify-content: center;
+user-select: none;
+}
+
+.message-hidden {
+opacity: 25%;
+}
+
+.markdown-container h1,
+.markdown-container h2,
+.markdown-container h3,
+.markdown-container h4,
+.markdown-container h5,
+.markdown-container h6,
+.markdown-container pre {
+margin-top: 0px;
+padding-top: 0px;
+margin-bottom: 5px;
+}
+
+.markdown-container p {
+margin-block-start: 0em;
+margin-block-end: 1em;
+}
+
+.markdown-container li {
+justify-content: left;
+}
+
+ul, ol {
+list-style: none;
+padding: 0;
+margin: 0;
+}
+
+.placeholder-markdown {
+opacity: 20%;
+}
+
+/* Apply to the specific container */
+.markdown-container {
+overflow: auto;
+}
+
+/* This applies to the entire document */
+* {
+scrollbar-width: thin;
+scrollbar-color: rgba(187, 187, 187, 0.7) transparent;
+}
+
+/* This is for Chrome, Safari and Opera */
+*::-webkit-scrollbar {
+width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+background: transparent; 
+}
+
+*::-webkit-scrollbar-thumb {
+background-color: rgb(224, 224, 224); 
+border-radius: 10px;
+border: transparent;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+background-color: rgb(201, 201, 201); 
+
+}
+
+/* TypingIndicator.css */
+
+.typing-indicator {
+font-size: 24px;
+color: gray;
+}
+
+.flex-container {
+display: flex;
+flex-direction: column;
+height: 100%;
+justify-content: flex-end;
 }

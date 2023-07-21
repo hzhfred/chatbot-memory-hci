@@ -19,6 +19,7 @@ import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon } from '@primer/octicons-react';
 
 export default function Chat() {
+  const [chats, setChats] = useState({chat1: [], chat2: []});
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [editMessageId, setEditMessageId] = useState(null);
@@ -111,21 +112,27 @@ export default function Chat() {
     }
   }
   
-
-  const handleNewMessage = () => {
-
+  const handleNewMessage = (id) => {
     let emptyMessage;
-
-    if (messages.length === 0 || (messages[messages.length - 1].role === "assistant")) {
+  
+    if (!chats[id] || chats[id].length === 0 || (chats[id][chats[id].length - 1].role === "assistant")) {
       emptyMessage = { id: uuidv4(), role: "user", content: "", visible: true };
     } else {
       emptyMessage = { id: uuidv4(), role: "assistant", content: "", visible: true };
     };
-
-    setMessages(prevMessages => [...prevMessages, emptyMessage]);
+  
+    setChats({
+      ...chats,
+      [id]: chats[id] ? [...chats[id], emptyMessage] : [emptyMessage]
+    });
   }
+  
 
   const handleChatReset = () => {
+    setChats({
+      ...chats,
+      [id]: [],
+    });
     setMessages([]);
     setEditMessageId(null);
     setEdit("")
@@ -136,17 +143,33 @@ export default function Chat() {
     setSelected([]);
   };
 
-
   const handleOnDragEnd = (result) => {
     if (!result.destination) return;
-
-    const items = Array.from(messages);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setMessages(items);
+  
+    const { source, destination } = result;
+  
+    if (source.droppableId !== destination.droppableId) {
+      const sourceChatItems = Array.from(chats[source.droppableId]);
+      const destChatItems = Array.from(chats[destination.droppableId]);
+      const [removed] = sourceChatItems.splice(source.index, 1);
+      destChatItems.splice(destination.index, 0, removed);
+  
+      const newChats = {
+        ...chats,
+        [source.droppableId]: sourceChatItems,
+        [destination.droppableId]: destChatItems
+      };
+  
+      setChats(newChats);
+    } else {
+      const chatItems = Array.from(chats[source.droppableId]);
+      const [reorderedItem] = chatItems.splice(source.index, 1);
+      chatItems.splice(destination.index, 0, reorderedItem);
+  
+      setChats({...chats, [source.droppableId]: chatItems});
+    }
   };
-
+  
   const handleSummarize = async () => {
 
     const summaryMessage = {
@@ -177,7 +200,7 @@ export default function Chat() {
     });
   };
 
-  const handleSend = async () => {
+  const handleSend = async (chatId) => {
 
     const systemMessage = {
       role: "system",
@@ -186,7 +209,7 @@ export default function Chat() {
 
     const prompt = message.trim();
     const userMessage = { id: uuidv4(), role: "user", content: String(prompt), visible: true };
-    const visibleMessages = messages.filter(msg => msg.visible && (msg.content !== ""))
+    const visibleMessages = chats[chatId].filter(msg => msg.visible && (msg.content !== ""))
 
     if (prompt === "" && visibleMessages.length === 0) {
       return;
@@ -258,11 +281,13 @@ export default function Chat() {
       <div className="flex-container">
         <motion.div layoutId='message-list' className="message-list">
           <DragDropContext onDragEnd={handleOnDragEnd}>
-            <Droppable droppableId="messages">
+          {Object.keys(chats).map((chatId) => (
+            <div key={chatId} className="chat-container">
+            <Droppable key={chatId} droppableId={chatId}>
               {(provided) => (
                 <ul className="message-list" {...provided.droppableProps} ref={provided.innerRef}>
-                  {messages.map((msg, index) =>
-                    <Draggable key={msg.id} draggableId={msg.id} index={index} >
+                  {chats[chatId].map((msg, index) =>
+                    <Draggable key={msg.id} draggableId={msg.id} index={index}>
                       {(provided) => (
                         <AnimatePresence>
                           <motion.li
@@ -357,37 +382,36 @@ export default function Chat() {
                           </motion.li>
                         </AnimatePresence>
                       )}
-                    </Draggable>
-                  )}
-                  {provided.placeholder}
-                  {isTyping && (
-                    <Spin indicator={antIcon} />
-                  )}
-                </ul>
-              )}
+                      </Draggable>
+                    )}
+                    {provided.placeholder}
+                  </ul>
+                )}
             </Droppable>
+              <motion.div layoutId="input-container" layout transition={{ duration: 0.5 }} className="input-container">
+                <div className="input-container" style={{ marginTop: 'auto' }}>
+                  <button title='New Chat' onClick={handleChatReset} className='input-button'><UndoIcon size={16} /></button>
+                  <button title='Add Message' onClick={handleNewMessage} className='input-button'><PlusIcon size={24} /></button>
+                  <button title='Summarize' onClick={() => handleSummarize()} className='input-button'><StackIcon size={16} /></button>
+                  <textarea
+                    ref={textAreaRef}
+                    type="text"
+                    className='input-box'
+                    value={message}
+                    onChange={handleInputChange}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend();
+                      }
+                    }}
+                  />
+                  <button title='Send' onClick={handleSend} className='input-button'><TriangleRightIcon size={24} /></button>
+                </div>
+              </motion.div>
+            </div>
+            ))}
           </DragDropContext>
-        </motion.div>
-        <motion.div layoutId="input-container" layout transition={{ duration: 0.5 }} className="input-container">
-          <div className="input-container" style={{ marginTop: 'auto' }}>
-            <button title='New Chat' onClick={handleChatReset} className='input-button'><UndoIcon size={16} /></button>
-            <button title='Add Message' onClick={handleNewMessage} className='input-button'><PlusIcon size={24} /></button>
-            <button title='Summarize' onClick={() => handleSummarize()} className='input-button'><StackIcon size={16} /></button>
-            <textarea
-              ref={textAreaRef}
-              type="text"
-              className='input-box'
-              value={message}
-              onChange={handleInputChange}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-            />
-            <button title='Send' onClick={handleSend} className='input-button'><TriangleRightIcon size={24} /></button>
-          </div>
         </motion.div>
       </div>
     </div>
