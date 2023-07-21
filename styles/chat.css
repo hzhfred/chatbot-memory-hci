@@ -1,8 +1,10 @@
 .chat-container {
+  flex: 1 0 auto;
   display: flex;
   align-items: center;
   flex-direction: column;
   justify-content: center;
+  margin: 1em;
   min-height: 100vh; /* Adjust this as needed */
   color: rgb(61, 61, 61);
 }
@@ -308,6 +310,7 @@
 }
 
 .title {
+  text-shadow: 0 0 2em rgb(0, 0, 0, 0.5);
   opacity: 10%;
   font-size: 25px; 
   font-weight: 650;
@@ -394,7 +397,8 @@ ul, ol {
 
 .flex-container {
   display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: flex-end;
+  flex-direction: row;
+
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
