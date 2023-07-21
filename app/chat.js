@@ -133,6 +133,7 @@ export default function Chat() {
     setDropdownMessageId(null);
     setDropdownOpen(false);
     setIsTyping(false);
+    setSelected([]);
   };
 
 
