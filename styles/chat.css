@@ -221,10 +221,49 @@
 }
 
 .input-button {
+  transition: transform 0.1s ease-in-out;
+  background-color: rgb(219, 219, 219);
+  border: none; /* Removes the default button border */
+  cursor: pointer; /* Changes the cursor to a hand when hovering over the button */
+  outline: none; /* Removes the focus outline */
+  padding: 1; /* Removes the default button padding */
+  display: flex; /* Makes sure the button contents are centered */
+  align-items: center; /* Vertically center the content */
+  justify-content: center; /* Horizontally center the content */
+  height: 30px;
+  width: 40px;
+  border-radius: 8px;
+
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
   font-size: 16px;
   width: 50px;
   color: darkgray;
+}
+
+.global-input-button-add-chat {
+  background-color: rgb(190, 190, 190);
+  color: white;
+  width: 90px;
+  position: fixed;
+  right: 95px;
+  bottom: 25px;
+}
+
+.global-input-button-reset {
+  background-color: rgb(235, 171, 171);
+  color: white;
+  width: 65px;
+  position: fixed;
+  right: 20px;
+  bottom: 25px;
+}
+
+.global-input-button-add-chat:hover {
+  color: white;
+}
+
+.global-input-button-reset:hover {
+  color: white;
 }
 
 .input-button-disabled {

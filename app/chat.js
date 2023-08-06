@@ -135,8 +135,23 @@ export default function Chat() {
     }));
   };
 
-  const handleChatReset = () => {
+  const handleTotalReset = () => {
     setChats({chat1: []});
+    setEditMessageId(null);
+    setEdit("");
+    setHoveredMessageId(null);
+    setDropdownMessageId(null);
+    setDropdownOpen(false);
+    setIsTyping(false);
+    setSelected([]);
+  };
+
+  const handleChatReset = (chatId) => {
+    setChats(prevChats => {
+      const newChats = {...prevChats};
+      newChats[chatId] = [];
+      return newChats;
+    });
     setEditMessageId(null);
     setEdit("");
     setHoveredMessageId(null);
@@ -404,8 +419,8 @@ export default function Chat() {
               </Droppable>
               <motion.div layoutId={`input-container-layout-id-${chatId}`} layout transition={{ duration: 0.5 }} className="input-container" key={`input-container-key-${chatId}`} id={`input-container-id-${chatId}`}>
                 <div className="input-container" style={{ marginTop: 'auto' }}>
-                  <button title='Add Chat' onClick={handleNewChat} className='input-button'><DuplicateIcon size={16} /></button>
-                  <button title='Reset Chat' onClick={handleChatReset} className='input-button'><UndoIcon size={16} /></button>
+                  
+                  <button title='Reset Chat' onClick={() => handleChatReset(chatId)} className='input-button'><UndoIcon size={16} /></button>
                   <button title='Add Message' onClick={() => handleNewMessage(chatId)} className='input-button'><PlusIcon size={24} /></button>
                   <button title='Summarize' onClick={() => { if (selected.length > 0) handleSummarize(chatId) }} className={selected.length > 0 ? 'input-button' : 'input-button-disabled'}><StackIcon size={16} /></button>
                   <textarea
@@ -429,6 +444,8 @@ export default function Chat() {
           </div>
           </DragDropContext>
         </motion.div>
+        <button onClick={handleNewChat} className='input-button global-input-button-add-chat'>Add Chat</button>
+        <button onClick={handleTotalReset} className='input-button global-input-button-reset'>Reset</button>
       </div>
   );
 }
