@@ -21,7 +21,6 @@ import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon } from 
 export default function Chat() {
   const [chats, setChats] = useState({chat1: []});
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
   const [editMessageId, setEditMessageId] = useState(null);
   const [edit, setEdit] = useState("")
   const [hoveredMessageId, setHoveredMessageId] = useState(null);
@@ -42,7 +41,6 @@ export default function Chat() {
     if (editMessageId && editTextAreaRef.current) {
       const textarea = editTextAreaRef.current;
       textarea.focus();
-
     }
   }, [editMessageId, edit]);
 
@@ -66,10 +64,16 @@ export default function Chat() {
     e.target.style.height = `${e.target.scrollHeight - 10}px`;
   };
 
-  const handleEdit = (index, edit) => {
-    const newMessages = [...messages];
-    newMessages[index].content = edit;
-    setMessages(newMessages);
+  const handleEdit = (chatId, messageId, edit) => {
+    setChats(prevChats => {
+      const newChats = {...prevChats};
+      const chat = newChats[chatId];
+      const messageIndex = chat.findIndex(msg => msg.id === messageId);
+      if (messageIndex !== -1) {
+        chat[messageIndex].content = edit;
+      }
+      return newChats;
+    });
     setEditMessageId(null);
     setEdit('');
   };
@@ -102,44 +106,39 @@ export default function Chat() {
     };
   };
 
-  const handleSelect = (checked,message) => {
-
-    if(checked && !selected.some(e => e.id === message.id)){
-      selected.push({ id: message.id, content: message.content, role: message.role, visible: message.visible })
+  const handleSelect = (checked, message) => {
+    if (checked && !selected.some(e => e.id === message.id)) {
+      setSelected(prevSelected => [...prevSelected, { id: message.id, content: message.content, role: message.role, visible: message.visible }]);
     } else {
-      const unSelect = selected.filter(select => select.id !== message.id)
-      setSelected(unSelect)
+      setSelected(prevSelected => prevSelected.filter(select => select.id !== message.id));
     }
-  }
-  
-  const handleNewMessage = (id) => {
+  };
+
+  const handleNewMessage = (chatId) => {
     let emptyMessage;
-  
-    if (!chats[id] || chats[id].length === 0 || (chats[id][chats[id].length - 1].role === "assistant")) {
+    if (!chats[chatId] || chats[chatId].length === 0 || (chats[chatId][chats[chatId].length - 1].role === "assistant")) {
       emptyMessage = { id: uuidv4(), role: "user", content: "", visible: true };
     } else {
       emptyMessage = { id: uuidv4(), role: "assistant", content: "", visible: true };
     };
-  
-    setChats({
-      ...chats,
-      [id]: chats[id] ? [...chats[id], emptyMessage] : [emptyMessage]
-    });
-  }
 
-  const handleNewChat = (id) => {
     setChats({
       ...chats,
-      [id]: [],
+      [chatId]: chats[chatId] ? [...chats[chatId], emptyMessage] : [emptyMessage]
     });
-  }
-  
+  };
+
+  const handleNewChat = () => {
+    setChats(chats => ({
+      ...chats,
+      [uuidv4()]: [],
+    }));
+  };
+
   const handleChatReset = () => {
-
     setChats({chat1: []});
-    setMessages([]);
     setEditMessageId(null);
-    setEdit("")
+    setEdit("");
     setHoveredMessageId(null);
     setDropdownMessageId(null);
     setDropdownOpen(false);
@@ -149,33 +148,32 @@ export default function Chat() {
 
   const handleOnDragEnd = (result) => {
     if (!result.destination) return;
-  
+
     const { source, destination } = result;
-  
+
     if (source.droppableId !== destination.droppableId) {
       const sourceChatItems = Array.from(chats[source.droppableId]);
       const destChatItems = Array.from(chats[destination.droppableId]);
       const [removed] = sourceChatItems.splice(source.index, 1);
       destChatItems.splice(destination.index, 0, removed);
-  
+
       const newChats = {
         ...chats,
         [source.droppableId]: sourceChatItems,
         [destination.droppableId]: destChatItems
       };
-  
+
       setChats(newChats);
     } else {
       const chatItems = Array.from(chats[source.droppableId]);
       const [reorderedItem] = chatItems.splice(source.index, 1);
       chatItems.splice(destination.index, 0, reorderedItem);
-  
+
       setChats({...chats, [source.droppableId]: chatItems});
     }
   };
-  
-  const handleSummarize = async () => {
 
+  const handleSummarize = async (chatId) => {
     const summaryMessage = {
       role: "user",
       content: "Create a very concise summary of the above messages.",
@@ -184,28 +182,39 @@ export default function Chat() {
     const messageList = [...selected
       .filter(msg => msg.visible)
       .map(msg => ({
-          role: msg.role === "summary" ? "user" : msg.role,
-          content: msg.content
+        role: msg.role === "summary" ? "user" : msg.role,
+        content: msg.content
       })), summaryMessage];
-      console.log(messageList)
+    console.log(messageList);
 
-    runLLM(messageList).then(response => { 
-      console.log(response)
-
+    runLLM(messageList).then(response => {
+      console.log(response);
 
       const summary = { id: uuidv4(), role: "summary", content: String(response), visible: true };
-      setMessages(prevMessages => [...prevMessages, summary]);
+      setChats(prevChats => {
+        const newChats = {...prevChats};
+        for (let chatId in newChats) {
+          newChats[chatId] = [...newChats[chatId], summary];
+        }
+        return newChats;
+      });
 
-    }).then(()=>{
-
-      setMessages(prevMessages => prevMessages.map(msg =>
-        selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
-      ));
+    }).then(() => {
+      setChats(prevChats => {
+        const newChats = {...prevChats};
+        for (let chatId in newChats) {
+          newChats[chatId] = newChats[chatId].map(msg =>
+            selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
+          );
+        }
+        return newChats;
+      });
     });
+
+    setSelected([]);
   };
 
   const handleSend = async (chatId) => {
-
     const systemMessage = {
       role: "system",
       content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
@@ -213,22 +222,22 @@ export default function Chat() {
 
     const prompt = message.trim();
     const userMessage = { id: uuidv4(), role: "user", content: String(prompt), visible: true };
-    const visibleMessages = chats[chatId].filter(msg => msg.visible && (msg.content !== ""))
+    const visibleMessages = chats[chatId].filter(msg => msg.visible && (msg.content !== ""));
 
     if (prompt === "" && visibleMessages.length === 0) {
       return;
     } else {
-      setMessages(prevMessages => {
-
-        const newMessages = [...prevMessages]
+      setChats(prevChats => {
+        const newChats = {...prevChats};
+        const newChat = [...newChats[chatId]];
 
         if (prompt !== "") {
-          newMessages.push(userMessage);
+          newChat.push(userMessage);
         }
 
         setMessage("");
 
-        const messageList = [systemMessage, ...newMessages
+        const messageList = [systemMessage, ...newChat
           .filter(msg => msg.visible)
           .map(msg => ({
             role: msg.role,
@@ -239,11 +248,12 @@ export default function Chat() {
 
         runLLM(messageList).then(response => {
           setIsTyping(false);
-          const assistantMessage = { id: uuidv4(), role: "assistant", content: String(response), visible: true }
-          setMessages(prevMessages => [...prevMessages, assistantMessage]);
+          const assistantMessage = { id: uuidv4(), role: "assistant", content: String(response), visible: true };
+          newChat.push(assistantMessage);
         });
 
-        return newMessages;
+        newChats[chatId] = newChat;
+        return newChats;
       });
     }
   };
@@ -270,7 +280,7 @@ export default function Chat() {
   return (
     <div className="chat-container">
       <AnimatePresence>
-        {messages.length === 0 &&
+        {Object.values(chats).every(chat => chat.length === 0) &&
           <motion.div
             className="title"
             variants={titleVariants}
@@ -282,9 +292,9 @@ export default function Chat() {
           </motion.div>
         }
       </AnimatePresence>
-      <div className="flex-container">
         <motion.div layoutId='message-list' className="message-list">
           <DragDropContext onDragEnd={handleOnDragEnd}>
+          <div className="chat-instances-container">
           {Object.keys(chats).map((chatId) => (
             <div key={chatId} className="chat-container">
               <Droppable key={chatId} droppableId={chatId}>
@@ -310,10 +320,9 @@ export default function Chat() {
                                   <div className="message-role">
                                     <div className='role-box'>
                                     <Checkbox 
-                                      onChange = {(e)=>
-                                      handleSelect(e.target.checked,msg)
-                                      }
-                                    ></Checkbox>
+                                      checked={selected.some(e => e.id === msg.id)}
+                                      onChange = {(e) => handleSelect(e.target.checked, msg)}
+                                    />
                                     <span className="role" onClick={(e) => {
                                       e.stopPropagation();
                                       handleRoleDropdownToggle(msg.id)
@@ -339,10 +348,11 @@ export default function Chat() {
                                     </AnimatePresence>
                                     <DropdownMenu
                                             className='dropdown-menu'
+                                            chatId={chatId}
                                             message={msg}
                                             onClose={handleDropdownToggle}
-                                            messages={messages}
-                                            setMessages={setMessages}
+                                            chats={chats}
+                                            setChats={setChats}
                                             setDropdownMessageId={setDropdownMessageId}
                                             setDropdownOpen={setDropdownOpen}
                                             setEditMessageId={setEditMessageId}
@@ -362,7 +372,7 @@ export default function Chat() {
                                           onKeyDown={e => {
                                             if (e.key === 'Enter' && !e.shiftKey) {
                                               e.preventDefault();
-                                              handleEdit(index, edit);
+                                              handleEdit(chatId, msg.id, edit);
                                             }
                                           }}
                                         />
@@ -392,12 +402,12 @@ export default function Chat() {
                     </ul>
                   )}
               </Droppable>
-              <motion.div layoutId="input-container" layout transition={{ duration: 0.5 }} className="input-container">
+              <motion.div layoutId={`input-container-layout-id-${chatId}`} layout transition={{ duration: 0.5 }} className="input-container" key={`input-container-key-${chatId}`} id={`input-container-id-${chatId}`}>
                 <div className="input-container" style={{ marginTop: 'auto' }}>
                   <button title='Add Chat' onClick={handleNewChat} className='input-button'><DuplicateIcon size={16} /></button>
                   <button title='Reset Chat' onClick={handleChatReset} className='input-button'><UndoIcon size={16} /></button>
-                  <button title='Add Message' onClick={handleNewMessage} className='input-button'><PlusIcon size={24} /></button>
-                  <button title='Summarize' onClick={() => handleSummarize()} className='input-button'><StackIcon size={16} /></button>
+                  <button title='Add Message' onClick={() => handleNewMessage(chatId)} className='input-button'><PlusIcon size={24} /></button>
+                  <button title='Summarize' onClick={() => { if (selected.length > 0) handleSummarize(chatId) }} className={selected.length > 0 ? 'input-button' : 'input-button-disabled'}><StackIcon size={16} /></button>
                   <textarea
                     ref={textAreaRef}
                     type="text"
@@ -407,18 +417,18 @@ export default function Chat() {
                     onKeyDown={e => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        handleSend();
+                        handleSend(chatId);
                       }
                     }}
                   />
-                  <button title='Send' onClick={handleSend} className='input-button'><TriangleRightIcon size={24} /></button>
+                  <button title='Send' onClick={() => handleSend(chatId)} className='input-button'><TriangleRightIcon size={24} /></button>
                 </div>
               </motion.div>
             </div>
             ))}
+          </div>
           </DragDropContext>
         </motion.div>
       </div>
-    </div>
   );
 }

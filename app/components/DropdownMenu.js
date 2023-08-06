@@ -3,13 +3,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { TrashIcon, DuplicateIcon, CheckIcon, CopyIcon, PencilIcon, EyeClosedIcon, EyeIcon } from '@primer/octicons-react';
 import { UndoIcon, KebabHorizontalIcon, TriangleRightIcon, PlusIcon, BookmarkFillIcon, BookmarkIcon,SquareIcon, StackIcon,CheckboxIcon } from '@primer/octicons-react';
 
-const DropdownMenu = ({ message, onClose, messages, setMessages, setDropdownMessageId, setDropdownOpen, setEditMessageId, setEdit}) => {
+const DropdownMenu = ({ chatId, message, onClose, chats, setChats, setDropdownMessageId, setDropdownOpen, setEditMessageId, setEdit}) => {
 
   const [copyClicked, setCopyClicked] = useState(false);
 
   const deleteMessage = () => {
-    const newMessages = messages.filter(msg => msg.id !== message.id);
-    setMessages(newMessages);
+    setChats(prevChats => {
+      const newChats = {...prevChats};
+      const newMessages = newChats[chatId].filter(msg => msg.id !== message.id);
+      newChats[chatId] = newMessages;
+      return newChats;
+    });
     setDropdownMessageId(null);
     setDropdownOpen(false);
     onClose();
@@ -17,13 +21,18 @@ const DropdownMenu = ({ message, onClose, messages, setMessages, setDropdownMess
 
   const duplicateMessage = () => {
     let duplicatedMessage = { id: uuidv4(), role: message.role, content: message.content, visible: message.visible };
-    const index = messages.indexOf(message);
-    const updateList = [
-      ...messages.slice(0, index + 1),
-      duplicatedMessage,
-      ...messages.slice(index + 1)
-    ]
-    setMessages(updateList);
+    setChats(prevChats => {
+      const newChats = {...prevChats};
+      const messages = newChats[chatId];
+      const index = messages.indexOf(message);
+      const updateList = [
+        ...messages.slice(0, index + 1),
+        duplicatedMessage,
+        ...messages.slice(index + 1)
+      ];
+      newChats[chatId] = updateList;
+      return newChats;
+    });
     onClose();
   };
 
@@ -44,12 +53,15 @@ const DropdownMenu = ({ message, onClose, messages, setMessages, setDropdownMess
   };
 
   const editVisibility = () => {
-    const visible = message.visible;
-    if (visible) {
-      message.visible = false;
-    } else {
-      message.visible = true;
-    }
+    setChats(prevChats => {
+      const newChats = {...prevChats};
+      const messages = newChats[chatId];
+      const messageIndex = messages.findIndex(msg => msg.id === message.id);
+      if (messageIndex !== -1) {
+        messages[messageIndex].visible = !messages[messageIndex].visible;
+      }
+      return newChats;
+    });
     onClose();
   };
 
@@ -59,14 +71,7 @@ const DropdownMenu = ({ message, onClose, messages, setMessages, setDropdownMess
         {message.visible ? <EyeClosedIcon size={16} /> : <EyeIcon size={16} />}
       </button>
       <button title="Duplicate" onClick={duplicateMessage}><DuplicateIcon size={16} /></button>
-      {/* <button title="Copy" onClick={copyText}>
-        {copyClicked ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
-      </button> */}
-      {/* <button title="Edit" onClick={editMessage}><PencilIcon size={16} /></button> */}
-
-
       <button title="Delete" onClick={deleteMessage}><TrashIcon size={16} /></button>
-
     </div>
   )
 };

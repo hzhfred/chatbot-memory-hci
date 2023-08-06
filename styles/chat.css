@@ -7,6 +7,16 @@
   margin: 1em;
   min-height: 100vh; /* Adjust this as needed */
   color: rgb(61, 61, 61);
+  min-width: 300px;
+}
+
+.chat-instances-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow-x: auto;
+  height: 100%;
 }
   
 .input-container {
@@ -200,11 +210,8 @@
   border-radius: 8px;
 }
 
-.input-container button:hover {
-  color: gray;
-}
-
 .input-button:hover {
+  color: gray;
   transform: scale(1.07); /* Added hover effect */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); /* Adds a slight shadow for depth */
 }
@@ -218,6 +225,15 @@
   font-size: 16px;
   width: 50px;
   color: darkgray;
+}
+
+.input-button-disabled {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
+  font-size: 16px;
+  width: 50px;
+  color: darkgray;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .input-box:hover, .input-box:focus {
@@ -388,17 +404,7 @@ ul, ol {
 
 }
 
-/* TypingIndicator.css */
-
 .typing-indicator {
   font-size: 24px;
   color: gray;
-}
-
-.flex-container {
-  display: flex;
-  flex-direction: row;
-
-  justify-content: space-between;
-  flex-wrap: wrap;
 }
