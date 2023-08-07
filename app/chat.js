@@ -19,7 +19,7 @@ import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon } from '@primer/octicons-react';
 
 export default function Chat() {
-  const [chats, setChats] = useState({chat1: []});
+  const [chats, setChats] = useState({[`chat-${uuidv4()}`]: []});
   const [message, setMessage] = useState("");
   const [editMessageId, setEditMessageId] = useState(null);
   const [edit, setEdit] = useState("")
@@ -117,9 +117,9 @@ export default function Chat() {
   const handleNewMessage = (chatId) => {
     let emptyMessage;
     if (!chats[chatId] || chats[chatId].length === 0 || (chats[chatId][chats[chatId].length - 1].role === "assistant")) {
-      emptyMessage = { id: uuidv4(), role: "user", content: "", visible: true };
+      emptyMessage = { id: `message-${uuidv4()}`, role: "user", content: "", visible: true };
     } else {
-      emptyMessage = { id: uuidv4(), role: "assistant", content: "", visible: true };
+      emptyMessage = { id: `message-${uuidv4()}`, role: "assistant", content: "", visible: true };
     };
 
     setChats({
@@ -131,7 +131,7 @@ export default function Chat() {
   const handleNewChat = () => {
     setChats(chats => ({
       ...chats,
-      [uuidv4()]: [],
+      [`chat-${uuidv4()}`]: [],
     }));
   };
 
@@ -205,7 +205,7 @@ export default function Chat() {
     runLLM(messageList).then(response => {
       console.log(response);
 
-      const summary = { id: uuidv4(), role: "summary", content: String(response), visible: true };
+      const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true };
       setChats(prevChats => {
         const newChats = {...prevChats};
         for (let chatId in newChats) {
@@ -236,7 +236,7 @@ export default function Chat() {
     };
 
     const prompt = message.trim();
-    const userMessage = { id: uuidv4(), role: "user", content: String(prompt), visible: true };
+    const userMessage = { id: `message-${uuidv4()}`, role: "user", content: String(prompt), visible: true };
     const visibleMessages = chats[chatId].filter(msg => msg.visible && (msg.content !== ""));
 
     if (prompt === "" && visibleMessages.length === 0) {
@@ -263,7 +263,7 @@ export default function Chat() {
 
         runLLM(messageList).then(response => {
           setIsTyping(false);
-          const assistantMessage = { id: uuidv4(), role: "assistant", content: String(response), visible: true };
+          const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(response), visible: true };
           newChat.push(assistantMessage);
         });
 
