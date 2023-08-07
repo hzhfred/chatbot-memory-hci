@@ -20,7 +20,7 @@ import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon } from 
 
 export default function Chat() {
   const [chats, setChats] = useState({[`chat-${uuidv4()}`]: []});
-  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState({});
   const [editMessageId, setEditMessageId] = useState(null);
   const [edit, setEdit] = useState("")
   const [hoveredMessageId, setHoveredMessageId] = useState(null);
@@ -52,10 +52,9 @@ export default function Chat() {
     setHoveredMessageId(null);
   };
 
-  const handleInputChange = (e) => {
-    setMessage(e.target.value);
-    e.target.style.height = '20px';
-    e.target.style.height = `${e.target.scrollHeight - 10}px`;
+  const handleInputChange = (e, chatId) => {
+    const newMessage = e.target.value;
+    setMessages(prevMessages => ({ ...prevMessages, [chatId]: newMessage }));
   };
 
   const handleEditChange = (e) => {
@@ -235,7 +234,7 @@ export default function Chat() {
       content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
     };
 
-    const prompt = message.trim();
+    const prompt = messages[chatId].trim();
     const userMessage = { id: `message-${uuidv4()}`, role: "user", content: String(prompt), visible: true };
     const visibleMessages = chats[chatId].filter(msg => msg.visible && (msg.content !== ""));
 
@@ -250,7 +249,7 @@ export default function Chat() {
           newChat.push(userMessage);
         }
 
-        setMessage("");
+        setMessages(prevMessages => ({ ...prevMessages, [chatId]: '' }));
 
         const messageList = [systemMessage, ...newChat
           .filter(msg => msg.visible)
@@ -427,8 +426,8 @@ export default function Chat() {
                     ref={textAreaRef}
                     type="text"
                     className='input-box'
-                    value={message}
-                    onChange={handleInputChange}
+                    value={messages[chatId] || ''}
+                    onChange={(e) => handleInputChange(e, chatId)}
                     onKeyDown={e => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
