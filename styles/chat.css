@@ -241,6 +241,9 @@
 }
 
 .global-input-button-add-chat {
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   background-color: rgb(190, 190, 190);
   color: white;
   width: 90px;
@@ -250,6 +253,9 @@
 }
 
 .global-input-button-reset {
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   background-color: rgb(235, 171, 171);
   color: white;
   width: 65px;
@@ -367,11 +373,10 @@
 .title {
   text-shadow: 0 0 2em rgb(0, 0, 0, 0.5);
   opacity: 10%;
-  font-size: 25px; 
-  font-weight: 650;
-  position: absolute;
-  top: 50%;
-  left: 47%;
+  font-size: 30px; 
+  font-weight: 800;
+  position: fixed;
+  left: 45%;
   text-align: center;
   justify-content: center;
   user-select: none;
