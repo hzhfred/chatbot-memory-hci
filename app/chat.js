@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon } from '@primer/octicons-react';
+import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon } from '@primer/octicons-react';
 
 export default function Chat() {
   const [chats, setChats] = useState({[`chat-${uuidv4()}`]: []});
@@ -127,12 +127,27 @@ export default function Chat() {
     });
   };
 
-  const handleNewChat = () => {
+  const handleAddChat = () => {
     setChats(chats => ({
       ...chats,
       [`chat-${uuidv4()}`]: [],
     }));
   };
+
+  const handleSubtractChat = () => {
+    setChats(chats => {
+      const chatKeys = Object.keys(chats);
+      if (chatKeys.length === 1) {
+        return chats;
+      }
+  
+      const lastKey = chatKeys[chatKeys.length - 1];
+      const { [lastKey]: _, ...rest } = chats;
+  
+      return rest;
+    });
+  };
+  
 
   const handleTotalReset = () => {
     setChats({chat1: []});
@@ -192,7 +207,7 @@ export default function Chat() {
       role: "user",
       content: "Create a very concise summary of the above messages.",
     };
-
+  
     const messageList = [...selected
       .filter(msg => msg.visible)
       .map(msg => ({
@@ -200,10 +215,10 @@ export default function Chat() {
         content: msg.content
       })), summaryMessage];
     console.log(messageList);
-
+  
     runLLM(messageList).then(response => {
       console.log(response);
-
+  
       const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true };
       setChats(prevChats => {
         const newChats = {...prevChats};
@@ -212,7 +227,7 @@ export default function Chat() {
         }
         return newChats;
       });
-
+  
     }).then(() => {
       setChats(prevChats => {
         const newChats = {...prevChats};
@@ -224,9 +239,9 @@ export default function Chat() {
         return newChats;
       });
     });
-
+  
     setSelected([]);
-  };
+  };  
 
   const handleSend = async (chatId) => {
     const systemMessage = {
@@ -443,7 +458,8 @@ export default function Chat() {
           </div>
           </DragDropContext>
         </motion.div>
-        <button onClick={handleNewChat} className='input-button global-input-button-add-chat'>Add Chat</button>
+        <button title='Add Chat' onClick={handleAddChat} className='input-button global-input-button-add-chat'><PlusIcon size={16} /></button>
+        <button title='Subtract Chat' onClick={handleSubtractChat} className='input-button global-input-button-sub-chat'><DashIcon size={16} /></button>
         <button onClick={handleTotalReset} className='input-button global-input-button-reset'>Reset</button>
       </div>
   );
