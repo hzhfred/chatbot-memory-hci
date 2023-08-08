@@ -19,7 +19,7 @@ import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon } from '@primer/octicons-react';
 
 export default function Chat() {
-  const [chats, setChats] = useState({[`chat-${uuidv4()}`]: []});
+  const [chats, setChats] = useState({ [`chat-${uuidv4()}`]: [] });
   const [messages, setMessages] = useState({});
   const [editMessageId, setEditMessageId] = useState(null);
   const [edit, setEdit] = useState("")
@@ -65,7 +65,7 @@ export default function Chat() {
 
   const handleEdit = (chatId, messageId, edit) => {
     setChats(prevChats => {
-      const newChats = {...prevChats};
+      const newChats = { ...prevChats };
       const chat = newChats[chatId];
       const messageIndex = chat.findIndex(msg => msg.id === messageId);
       if (messageIndex !== -1) {
@@ -140,17 +140,17 @@ export default function Chat() {
       if (chatKeys.length === 1) {
         return chats;
       }
-  
+
       const lastKey = chatKeys[chatKeys.length - 1];
       const { [lastKey]: _, ...rest } = chats;
-  
+
       return rest;
     });
   };
-  
+
 
   const handleTotalReset = () => {
-    setChats({chat1: []});
+    setChats({ chat1: [] });
     setEditMessageId(null);
     setEdit("");
     setHoveredMessageId(null);
@@ -162,7 +162,7 @@ export default function Chat() {
 
   const handleChatReset = (chatId) => {
     setChats(prevChats => {
-      const newChats = {...prevChats};
+      const newChats = { ...prevChats };
       newChats[chatId] = [];
       return newChats;
     });
@@ -198,7 +198,7 @@ export default function Chat() {
       const [reorderedItem] = chatItems.splice(source.index, 1);
       chatItems.splice(destination.index, 0, reorderedItem);
 
-      setChats({...chats, [source.droppableId]: chatItems});
+      setChats({ ...chats, [source.droppableId]: chatItems });
     }
   };
 
@@ -207,7 +207,7 @@ export default function Chat() {
       role: "user",
       content: "Create a very concise summary of the above messages.",
     };
-  
+
     const messageList = [...selected
       .filter(msg => msg.visible)
       .map(msg => ({
@@ -215,33 +215,35 @@ export default function Chat() {
         content: msg.content
       })), summaryMessage];
     console.log(messageList);
-  
+
     runLLM(messageList).then(response => {
       console.log(response);
-  
+
       const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false };
       setChats(prevChats => {
-        const newChats = {...prevChats};
-        for (let chatId in newChats) {
-          newChats[chatId] = [...newChats[chatId], summary];
+        const newChats = { ...prevChats };
+        for (let Id in newChats) {
+          if (Id == chatId) {
+            newChats[chatId] = [...newChats[chatId], summary];
+          }
         }
         return newChats;
       });
-  
+
     }).then(() => {
       setChats(prevChats => {
-        const newChats = {...prevChats};
+        const newChats = { ...prevChats };
         for (let chatId in newChats) {
           newChats[chatId] = newChats[chatId].map(msg =>
-            selected.find(s => s.id === msg.id) ? {...msg, visible: false, child: true} : msg
+            selected.find(s => s.id === msg.id) ? { ...msg, visible: false, child: true } : msg
           );
         }
         return newChats;
       });
     });
-  
+
     setSelected([]);
-  };  
+  };
 
   const handleSend = async (chatId) => {
     const systemMessage = {
@@ -257,7 +259,7 @@ export default function Chat() {
       return;
     } else {
       setChats(prevChats => {
-        const newChats = {...prevChats};
+        const newChats = { ...prevChats };
         const newChat = [...newChats[chatId]];
 
         if (prompt !== "") {
@@ -321,76 +323,76 @@ export default function Chat() {
           </motion.div>
         }
       </AnimatePresence>
-        <motion.div layoutId='message-list' className="message-list">
-          <DragDropContext onDragEnd={handleOnDragEnd}>
+      <motion.div layoutId='message-list' className="message-list">
+        <DragDropContext onDragEnd={handleOnDragEnd}>
           <div className="chat-instances-container">
-          {Object.keys(chats).map((chatId) => (
-            <div key={chatId} className="chat-container">
-              <Droppable key={chatId} droppableId={chatId}>
-                {(provided) => (
-                  <ul className="message-list" {...provided.droppableProps} ref={provided.innerRef}>
-                    {chats[chatId].map((msg, index) =>
-                      <Draggable key={msg.id} draggableId={msg.id} index={index}>
-                        {(provided) => (
-                          <AnimatePresence>
-                            <motion.li
-                              className={msg.child ? "child-message" : ""}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              ref={provided.innerRef}
-                              onMouseEnter={() => handleMouseEnter(msg.id)}
-                              onMouseLeave={handleMouseLeave}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, x: -10 }}
-                              transition={{ duration: 0.5, ease: "easeInOut" }}
-                            >
-                              <li {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef} onMouseEnter={() => handleMouseEnter(msg.id)} onMouseLeave={handleMouseLeave}>
-                                <div className={msg.visible ? 'message-wrapper' : 'message-wrapper message-hidden'}>
-                                  <div className="message-role">
-                                    <div className='role-box'>
-                                    <Checkbox 
-                                      checked={selected.some(e => e.id === msg.id)}
-                                      onChange = {(e) => handleSelect(e.target.checked, msg)}
-                                    />
-                                    <span className="role" onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleRoleDropdownToggle(msg.id)
-                                    }}>
-                                      {msg.role}
-                                    </span>
+            {Object.keys(chats).map((chatId) => (
+              <div key={chatId} className="chat-container">
+                <Droppable key={chatId} droppableId={chatId}>
+                  {(provided) => (
+                    <ul className="message-list" {...provided.droppableProps} ref={provided.innerRef}>
+                      {chats[chatId].map((msg, index) =>
+                        <Draggable key={msg.id} draggableId={msg.id} index={index}>
+                          {(provided) => (
+                            <AnimatePresence>
+                              <motion.li
+                                className={msg.child ? "child-message" : ""}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                ref={provided.innerRef}
+                                onMouseEnter={() => handleMouseEnter(msg.id)}
+                                onMouseLeave={handleMouseLeave}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, x: -10 }}
+                                transition={{ duration: 0.5, ease: "easeInOut" }}
+                              >
+                                <li {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef} onMouseEnter={() => handleMouseEnter(msg.id)} onMouseLeave={handleMouseLeave}>
+                                  <div className={msg.visible ? 'message-wrapper' : 'message-wrapper message-hidden'}>
+                                    <div className="message-role">
+                                      <div className='role-box'>
+                                        <Checkbox
+                                          checked={selected.some(e => e.id === msg.id)}
+                                          onChange={(e) => handleSelect(e.target.checked, msg)}
+                                        />
+                                        <span className="role" onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleRoleDropdownToggle(msg.id)
+                                        }}>
+                                          {msg.role}
+                                        </span>
+                                      </div>
+                                      <AnimatePresence>
+                                        {roleDropdownId === msg.id && roleDropdownOpen && (
+                                          <motion.div
+                                            initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                                            transition={{ duration: 0.1 }}
+                                          >
+                                            <RoleDropdownMenu
+                                              className='role-dropdown-menu'
+                                              message={msg}
+                                              onClose={handleRoleDropdownToggle}
+                                            />
+                                          </motion.div>
+                                        )}
+                                      </AnimatePresence>
+                                      <DropdownMenu
+                                        className='dropdown-menu'
+                                        chatId={chatId}
+                                        message={msg}
+                                        onClose={handleDropdownToggle}
+                                        chats={chats}
+                                        setChats={setChats}
+                                        setDropdownMessageId={setDropdownMessageId}
+                                        setDropdownOpen={setDropdownOpen}
+                                        setEditMessageId={setEditMessageId}
+                                        setEdit={setEdit}
+                                      />
                                     </div>
-                                    <AnimatePresence>
-                                      {roleDropdownId === msg.id && roleDropdownOpen && (
-                                        <motion.div
-                                          initial={{ opacity: 0, scale: 0.95, y: -5 }}
-                                          animate={{ opacity: 1, scale: 1, y: 0 }}
-                                          exit={{ opacity: 0, scale: 0.95, y: -5 }}
-                                          transition={{ duration: 0.1 }}
-                                        >
-                                          <RoleDropdownMenu
-                                            className='role-dropdown-menu'
-                                            message={msg}
-                                            onClose={handleRoleDropdownToggle}
-                                          />
-                                        </motion.div>
-                                      )}
-                                    </AnimatePresence>
-                                    <DropdownMenu
-                                            className='dropdown-menu'
-                                            chatId={chatId}
-                                            message={msg}
-                                            onClose={handleDropdownToggle}
-                                            chats={chats}
-                                            setChats={setChats}
-                                            setDropdownMessageId={setDropdownMessageId}
-                                            setDropdownOpen={setDropdownOpen}
-                                            setEditMessageId={setEditMessageId}
-                                            setEdit={setEdit}
-                                          />
-                                  </div>
-                                  <div className="message-content">
-                                    {editMessageId === msg.id ? (
+                                    <div className="message-content">
+                                      {editMessageId === msg.id ? (
                                         <TextArea
                                           ref={editTextAreaRef}
                                           autoSize
@@ -406,62 +408,62 @@ export default function Chat() {
                                             }
                                           }}
                                         />
-                                    ) : (
-                                      <div className='message-text' onClick={e => {
-                                        setEdit(msg.content.toLowerCase());
-                                        setEditMessageId(msg.id);
-                                      }}>
-                                        <div className="markdown-container">
-                                          {
-                                            msg.content.trim() !== '' ?
-                                              <ReactMarkdown components={components} children={msg.content.toLowerCase().split('\n').map(line => line + '  ').join('\n')} remarkPlugins={remarkGfm} /> :
-                                              <p className='placeholder-markdown' >type a message...</p>
-                                          }
+                                      ) : (
+                                        <div className='message-text' onClick={e => {
+                                          setEdit(msg.content.toLowerCase());
+                                          setEditMessageId(msg.id);
+                                        }}>
+                                          <div className="markdown-container">
+                                            {
+                                              msg.content.trim() !== '' ?
+                                                <ReactMarkdown components={components} children={msg.content.toLowerCase().split('\n').map(line => line + '  ').join('\n')} remarkPlugins={remarkGfm} /> :
+                                                <p className='placeholder-markdown' >type a message...</p>
+                                            }
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                            </motion.li>
-                          </AnimatePresence>
-                        )}
+                                </li>
+                              </motion.li>
+                            </AnimatePresence>
+                          )}
                         </Draggable>
                       )}
                       {provided.placeholder}
                     </ul>
                   )}
-              </Droppable>
-              <motion.div layoutId={`input-container-layout-id-${chatId}`} layout transition={{ duration: 0.5 }} className="input-container" key={`input-container-key-${chatId}`} id={`input-container-id-${chatId}`}>
-                <div className="input-container" style={{ marginTop: 'auto' }}>
-                  
-                  <button title='Reset Chat' onClick={() => handleChatReset(chatId)} className='input-button'><UndoIcon size={16} /></button>
-                  <button title='Add Message' onClick={() => handleNewMessage(chatId)} className='input-button'><PlusIcon size={24} /></button>
-                  <button title='Summarize' onClick={() => { if (selected.length > 0) handleSummarize(chatId) }} className={selected.length > 0 ? 'input-button' : 'input-button-disabled'}><StackIcon size={16} /></button>
-                  <textarea
-                    ref={textAreaRef}
-                    type="text"
-                    className='input-box'
-                    value={messages[chatId] || ''}
-                    onChange={(e) => handleInputChange(e, chatId)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSend(chatId);
-                      }
-                    }}
-                  />
-                  <button title='Send' onClick={() => handleSend(chatId)} className='input-button'><TriangleRightIcon size={24} /></button>
-                </div>
-              </motion.div>
-            </div>
+                </Droppable>
+                <motion.div layoutId={`input-container-layout-id-${chatId}`} layout transition={{ duration: 0.5 }} className="input-container" key={`input-container-key-${chatId}`} id={`input-container-id-${chatId}`}>
+                  <div className="input-container" style={{ marginTop: 'auto' }}>
+
+                    <button title='Reset Chat' onClick={() => handleChatReset(chatId)} className='input-button'><UndoIcon size={16} /></button>
+                    <button title='Add Message' onClick={() => handleNewMessage(chatId)} className='input-button'><PlusIcon size={24} /></button>
+                    <button title='Summarize' onClick={() => { if (selected.length > 0) handleSummarize(chatId) }} className={selected.length > 0 ? 'input-button' : 'input-button-disabled'}><StackIcon size={16} /></button>
+                    <textarea
+                      ref={textAreaRef}
+                      type="text"
+                      className='input-box'
+                      value={messages[chatId] || ''}
+                      onChange={(e) => handleInputChange(e, chatId)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSend(chatId);
+                        }
+                      }}
+                    />
+                    <button title='Send' onClick={() => handleSend(chatId)} className='input-button'><TriangleRightIcon size={24} /></button>
+                  </div>
+                </motion.div>
+              </div>
             ))}
           </div>
-          </DragDropContext>
-        </motion.div>
-        <button title='Add Chat' onClick={handleAddChat} className='input-button global-input-button-add-chat'><PlusIcon size={16} /></button>
-        <button title='Subtract Chat' onClick={handleSubtractChat} className='input-button global-input-button-sub-chat'><DashIcon size={16} /></button>
-        <button onClick={handleTotalReset} className='input-button global-input-button-reset'>Reset</button>
-      </div>
+        </DragDropContext>
+      </motion.div>
+      <button title='Add Chat' onClick={handleAddChat} className='input-button global-input-button-add-chat'><PlusIcon size={16} /></button>
+      <button title='Subtract Chat' onClick={handleSubtractChat} className='input-button global-input-button-sub-chat'><DashIcon size={16} /></button>
+      <button onClick={handleTotalReset} className='input-button global-input-button-reset'>Reset</button>
+    </div>
   );
 }
