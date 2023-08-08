@@ -222,11 +222,7 @@ export default function Chat() {
       const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false };
       setChats(prevChats => {
         const newChats = { ...prevChats };
-        for (let Id in newChats) {
-          if (Id == chatId) {
-            newChats[chatId] = [...newChats[chatId], summary];
-          }
-        }
+        newChats[chatId] = [...newChats[chatId], summary];
         return newChats;
       });
 
