@@ -107,7 +107,7 @@ export default function Chat() {
 
   const handleSelect = (checked, message) => {
     if (checked && !selected.some(e => e.id === message.id)) {
-      setSelected(prevSelected => [...prevSelected, { id: message.id, content: message.content, role: message.role, visible: message.visible }]);
+      setSelected(prevSelected => [...prevSelected, { id: message.id, content: message.content, role: message.role, visible: message.visible, child: message.child }]);
     } else {
       setSelected(prevSelected => prevSelected.filter(select => select.id !== message.id));
     }
@@ -116,9 +116,9 @@ export default function Chat() {
   const handleNewMessage = (chatId) => {
     let emptyMessage;
     if (!chats[chatId] || chats[chatId].length === 0 || (chats[chatId][chats[chatId].length - 1].role === "assistant")) {
-      emptyMessage = { id: `message-${uuidv4()}`, role: "user", content: "", visible: true };
+      emptyMessage = { id: `message-${uuidv4()}`, role: "user", content: "", visible: true, child: false };
     } else {
-      emptyMessage = { id: `message-${uuidv4()}`, role: "assistant", content: "", visible: true };
+      emptyMessage = { id: `message-${uuidv4()}`, role: "assistant", content: "", visible: true, child: false };
     };
 
     setChats({
@@ -219,7 +219,7 @@ export default function Chat() {
     runLLM(messageList).then(response => {
       console.log(response);
   
-      const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true };
+      const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false };
       setChats(prevChats => {
         const newChats = {...prevChats};
         for (let chatId in newChats) {
@@ -233,7 +233,7 @@ export default function Chat() {
         const newChats = {...prevChats};
         for (let chatId in newChats) {
           newChats[chatId] = newChats[chatId].map(msg =>
-            selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
+            selected.find(s => s.id === msg.id) ? {...msg, visible: false, child: true} : msg
           );
         }
         return newChats;
@@ -250,7 +250,7 @@ export default function Chat() {
     };
 
     const prompt = messages[chatId].trim();
-    const userMessage = { id: `message-${uuidv4()}`, role: "user", content: String(prompt), visible: true };
+    const userMessage = { id: `message-${uuidv4()}`, role: "user", content: String(prompt), visible: true, child: false };
     const visibleMessages = chats[chatId].filter(msg => msg.visible && (msg.content !== ""));
 
     if (prompt === "" && visibleMessages.length === 0) {
@@ -277,7 +277,7 @@ export default function Chat() {
 
         runLLM(messageList).then(response => {
           setIsTyping(false);
-          const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(response), visible: true };
+          const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(response), visible: true, child: false };
           newChat.push(assistantMessage);
         });
 
@@ -334,6 +334,7 @@ export default function Chat() {
                         {(provided) => (
                           <AnimatePresence>
                             <motion.li
+                              className={msg.child ? "child-message" : ""}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
                               ref={provided.innerRef}
