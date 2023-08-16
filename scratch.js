@@ -19,7 +19,7 @@ import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon } from '@primer/octicons-react';
 
 export default function Chat() {
-const [chats, setChats] = useState({[`chat-${uuidv4()}`]: []});
+const [chats, setChats] = useState({ [`chat-${uuidv4()}`]: [] });
 const [messages, setMessages] = useState({});
 const [editMessageId, setEditMessageId] = useState(null);
 const [edit, setEdit] = useState("")
@@ -65,7 +65,7 @@ e.target.style.height = `${e.target.scrollHeight - 10}px`;
 
 const handleEdit = (chatId, messageId, edit) => {
 setChats(prevChats => {
-const newChats = {...prevChats};
+const newChats = { ...prevChats };
 const chat = newChats[chatId];
 const messageIndex = chat.findIndex(msg => msg.id === messageId);
 if (messageIndex !== -1) {
@@ -107,7 +107,7 @@ setRoleDropdownOpen(true);
 
 const handleSelect = (checked, message) => {
 if (checked && !selected.some(e => e.id === message.id)) {
-setSelected(prevSelected => [...prevSelected, { id: message.id, content: message.content, role: message.role, visible: message.visible }]);
+setSelected(prevSelected => [...prevSelected, { id: message.id, content: message.content, role: message.role, visible: message.visible, child: message.child }]);
 } else {
 setSelected(prevSelected => prevSelected.filter(select => select.id !== message.id));
 }
@@ -150,7 +150,7 @@ return rest;
 
 
 const handleTotalReset = () => {
-setChats({chat1: []});
+setChats({ chat1: [] });
 setEditMessageId(null);
 setEdit("");
 setHoveredMessageId(null);
@@ -162,7 +162,7 @@ setSelected([]);
 
 const handleChatReset = (chatId) => {
 setChats(prevChats => {
-const newChats = {...prevChats};
+const newChats = { ...prevChats };
 newChats[chatId] = [];
 return newChats;
 });
@@ -198,7 +198,7 @@ const chatItems = Array.from(chats[source.droppableId]);
 const [reorderedItem] = chatItems.splice(source.index, 1);
 chatItems.splice(destination.index, 0, reorderedItem);
 
-setChats({...chats, [source.droppableId]: chatItems});
+setChats({ ...chats, [source.droppableId]: chatItems });
 }
 };
 
@@ -221,19 +221,17 @@ console.log(response);
 
 const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false };
 setChats(prevChats => {
-const newChats = {...prevChats};
-for (let chatId in newChats) {
+const newChats = { ...prevChats };
 newChats[chatId] = [...newChats[chatId], summary];
-}
 return newChats;
 });
 
 }).then(() => {
 setChats(prevChats => {
-const newChats = {...prevChats};
+const newChats = { ...prevChats };
 for (let chatId in newChats) {
 newChats[chatId] = newChats[chatId].map(msg =>
-selected.find(s => s.id === msg.id) ? {...msg, visible: false} : msg
+selected.find(s => s.id === msg.id) ? { ...msg, visible: false, child: true } : msg
 );
 }
 return newChats;
@@ -241,7 +239,7 @@ return newChats;
 });
 
 setSelected([]);
-};  
+};
 
 const handleSend = async (chatId) => {
 const systemMessage = {
@@ -257,7 +255,7 @@ if (prompt === "" && visibleMessages.length === 0) {
 return;
 } else {
 setChats(prevChats => {
-const newChats = {...prevChats};
+const newChats = { ...prevChats };
 const newChat = [...newChats[chatId]];
 
 if (prompt !== "") {
@@ -334,6 +332,7 @@ Memory Sandbox
 {(provided) => (
 <AnimatePresence>
 <motion.li
+className={msg.child ? "child-message" : ""}
 {...provided.draggableProps}
 {...provided.dragHandleProps}
 ref={provided.innerRef}
@@ -348,9 +347,9 @@ transition={{ duration: 0.5, ease: "easeInOut" }}
 <div className={msg.visible ? 'message-wrapper' : 'message-wrapper message-hidden'}>
 <div className="message-role">
 <div className='role-box'>
-<Checkbox 
+<Checkbox
 checked={selected.some(e => e.id === msg.id)}
-onChange = {(e) => handleSelect(e.target.checked, msg)}
+onChange={(e) => handleSelect(e.target.checked, msg)}
 />
 <span className="role" onClick={(e) => {
 e.stopPropagation();

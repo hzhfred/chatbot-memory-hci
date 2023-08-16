@@ -30,6 +30,7 @@ export default function Chat() {
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [selected, setSelected] = useState([]);
+  const [summaryPrompt, setSummaryPrompt] = useState('Create a very concise summary of the above messages.');
   const textAreaRef = useRef(null);
   const editTextAreaRef = useRef(null);
 
@@ -205,7 +206,7 @@ export default function Chat() {
   const handleSummarize = async (chatId) => {
     const summaryMessage = {
       role: "user",
-      content: "Create a very concise summary of the above messages.",
+      content: summaryPrompt,
     };
 
     const messageList = [...selected
@@ -222,7 +223,7 @@ export default function Chat() {
       const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false };
       setChats(prevChats => {
         const newChats = { ...prevChats };
-        newChats[chatId] = [...newChats[chatId], summary];
+        newChats[chatId] = [summary, ...newChats[chatId]];
         return newChats;
       });
 

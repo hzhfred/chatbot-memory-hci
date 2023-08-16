@@ -52,6 +52,7 @@
 
 .child-message {
   z-index: 1;
+  margin-top: -50px;
 } 
 
 .message-wrapper {
@@ -289,13 +290,33 @@
   color: white;
 }
 
+.global-input-button-summary {
+  background-color: rgb(219, 219, 219);
+  position: fixed;
+  right: 175px;
+  bottom: 25px;
+}
+
 .input-button-disabled {
+  border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
   font-size: 16px;
-  width: 50px;
+  width: 40px;
+  height: 30px;
+  border: none;
   color: darkgray;
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.input-button-enabled {
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
+  font-size: 16px;
+  width: 40px;
+  height: 30px;
+  border: none;
+  color: darkgray;
 }
 
 .input-box:hover, .input-box:focus {
