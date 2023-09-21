@@ -9,7 +9,7 @@ The recent advent of large language models (LLM) has resulted in high-performing
 # quickstart
 ### setup the application
 1. install **[node.js](https://nodejs.org/en)**.
-2. run `git clone https://github.com/HMISTER03/chatbot-memory-hci.git`
+2. run `git clone https://github.com/hzhfred/chatbot-memory-hci.git`
 3. run npm install to get the dependencies.
 ### run the development server
 1. run `npm run dev` to start the development server.
