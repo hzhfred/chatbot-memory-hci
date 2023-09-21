@@ -9,13 +9,13 @@ The recent advent of large language models (LLM) has resulted in high-performing
 # quickstart
 ### setup the application
 1. install **[node.js](https://nodejs.org/en)**.
-2. run `git clone https://github.com/hzhfred/chatbot-memory-hci.git`
-3. run npm install to get the dependencies.
+2. run `git clone https://github.com/hzhfred/chatbot-memory-hci.git`.
+3. run `npm install` to get the dependencies.
 ### run the development server
 1. run `npm run dev` to start the development server.
 2. visit **http://localhost:3000** to view application.
 3. edit `app/layout.js` or `app/page.js` and save to see the updated result in browser.
-4. get the `.env.local` file to access openai.
+4. get the `.env.local` file to access OpenAI.
 # concept
 ![image](https://github.com/hzhfred/chatbot-memory-hci/assets/44552816/91809f1c-a1f5-4c76-be44-a3430d8198e2)
 _Memory Sandbox is a system that enables users to see and manage the memory of conversational agents. Memory
