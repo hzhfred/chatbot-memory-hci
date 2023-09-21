@@ -1,3 +1,5 @@
+https://arxiv.org/abs/2308.01542
+
 # abstract
 *how can we reveal a chatbot’s memory state and allow a user to manipulate its memory representation?*
 ### interface design
