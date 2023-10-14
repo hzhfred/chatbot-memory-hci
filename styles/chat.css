@@ -238,7 +238,6 @@
   height: 30px;
   width: 40px;
   border-radius: 8px;
-
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
   font-size: 16px;
   width: 50px;
@@ -489,4 +488,18 @@ ul, ol {
 .typing-indicator {
   font-size: 24px;
   color: gray;
+}
+
+.text-area-modal {
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+  z-index: 1001;
+  position: absolute;
+  margin-left: -70px;
+  padding: 10px;
+  padding-bottom: 50px;
+}
+
+.text-area-modal.visible {
+  opacity: 1;
 }

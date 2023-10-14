@@ -31,6 +31,7 @@ export default function Chat() {
   const [isTyping, setIsTyping] = useState(false);
   const [selected, setSelected] = useState([]);
   const [summaryPrompt, setSummaryPrompt] = useState('Create a very concise summary of the above messages.');
+  const [hoveredChatId, setHoveredChatId] = useState(null);
   const textAreaRef = useRef(null);
   const editTextAreaRef = useRef(null);
 
@@ -44,6 +45,20 @@ export default function Chat() {
       textarea.focus();
     }
   }, [editMessageId, edit]);
+
+  const hasSelectedMessage = (chatId) => {
+    const chat = chats[chatId];
+    const hasSelected = chat.some(message => message.selected);
+    return hasSelected;
+  };
+
+  const handleSummarizeHover = (chatId) => {
+    setHoveredChatId(chatId);
+  };
+
+  const handleSummarizeHoverLeave = () => {
+    setHoveredChatId(null);
+  };
 
   const handleMouseEnter = (id) => {
     setHoveredMessageId(id);
@@ -106,20 +121,34 @@ export default function Chat() {
     };
   };
 
-  const handleSelect = (checked, message) => {
+  const handleSelect = (checked, message, chatId) => {
     if (checked && !selected.some(e => e.id === message.id)) {
-      setSelected(prevSelected => [...prevSelected, { id: message.id, content: message.content, role: message.role, visible: message.visible, child: message.child }]);
+      setSelected(prevSelected => [...prevSelected, { id: message.id, content: message.content, role: message.role, visible: message.visible, child: message.child, selected: true}]);
     } else {
       setSelected(prevSelected => prevSelected.filter(select => select.id !== message.id));
     }
+    // Update the 'chats' state to reflect the selection status
+    setChats(prevChats => {
+      // If the chatId doesn't exist, return the previous chats state
+      if (!prevChats[chatId]) return prevChats;
+      // Update the specific message's 'selected' property in the chat
+      const updatedChat = prevChats[chatId].map(msg => {
+        if (msg.id === message.id) {
+          return { ...msg, selected: checked };
+        }
+        return msg;
+      });
+      // Return the updated chats state
+      return { ...prevChats, [chatId]: updatedChat };
+    });
   };
 
   const handleNewMessage = (chatId) => {
     let emptyMessage;
     if (!chats[chatId] || chats[chatId].length === 0 || (chats[chatId][chats[chatId].length - 1].role === "assistant")) {
-      emptyMessage = { id: `message-${uuidv4()}`, role: "user", content: "", visible: true, child: false };
+      emptyMessage = { id: `message-${uuidv4()}`, role: "user", content: "", visible: true, child: false, selected: false };
     } else {
-      emptyMessage = { id: `message-${uuidv4()}`, role: "assistant", content: "", visible: true, child: false };
+      emptyMessage = { id: `message-${uuidv4()}`, role: "assistant", content: "", visible: true, child: false, selected: false };
     };
 
     setChats({
@@ -208,19 +237,40 @@ export default function Chat() {
       role: "user",
       content: summaryPrompt,
     };
-
-    const messageList = [...selected
-      .filter(msg => msg.visible)
+  
+    // Get the chat instance for the provided chatId
+    const chatInstance = chats[chatId];
+    console.log("Chat Instance:", chatInstance);
+  
+    // Log the selected state
+    console.log("Selected State:", selected);
+  
+    // Extract the IDs from the selected message objects
+    const selectedIds = selected.map(msg => msg.id);
+  
+    // Construct the messageList by iterating over the chatInstance and checking if each message ID exists in the selectedIds
+    const messageList = chatInstance
+      .filter(msg => {
+        console.log("Checking Message ID:", msg.id);  // Log the current message's ID
+        return selectedIds.includes(msg.id) && msg.visible;
+      })
       .map(msg => ({
         role: msg.role === "summary" ? "user" : msg.role,
         content: msg.content
-      })), summaryMessage];
-    console.log(messageList);
+      }));
+  
+    // Log the filtered messages
+    console.log("Filtered Messages:", messageList);
+  
+    // Append the summaryMessage at the end
+    messageList.push(summaryMessage);
+  
+    console.log("Final Message List:", messageList);
 
     runLLM(messageList).then(response => {
       console.log(response);
 
-      const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false };
+      const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false, selected: false };
       setChats(prevChats => {
         const newChats = { ...prevChats };
         newChats[chatId] = [summary, ...newChats[chatId]];
@@ -232,7 +282,7 @@ export default function Chat() {
         const newChats = { ...prevChats };
         for (let chatId in newChats) {
           newChats[chatId] = newChats[chatId].map(msg =>
-            selected.find(s => s.id === msg.id) ? { ...msg, visible: false, child: true } : msg
+            selected.find(s => s.id === msg.id) ? { ...msg, visible: false, child: true, selected: false} : msg
           );
         }
         return newChats;
@@ -249,7 +299,7 @@ export default function Chat() {
     };
 
     const prompt = messages[chatId].trim();
-    const userMessage = { id: `message-${uuidv4()}`, role: "user", content: String(prompt), visible: true, child: false };
+    const userMessage = { id: `message-${uuidv4()}`, role: "user", content: String(prompt), visible: true, child: false, selected: false };
     const visibleMessages = chats[chatId].filter(msg => msg.visible && (msg.content !== ""));
 
     if (prompt === "" && visibleMessages.length === 0) {
@@ -268,7 +318,7 @@ export default function Chat() {
         const messageList = [systemMessage, ...newChat
           .filter(msg => msg.visible)
           .map(msg => ({
-            role: msg.role,
+            role: msg.role === "summary" ? "user" : msg.role,
             content: msg.content
           }))];
 
@@ -276,7 +326,7 @@ export default function Chat() {
 
         runLLM(messageList).then(response => {
           setIsTyping(false);
-          const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(response), visible: true, child: false };
+          const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(response), visible: true, child: false, selected: false };
           newChat.push(assistantMessage);
         });
 
@@ -350,7 +400,7 @@ export default function Chat() {
                                       <div className='role-box'>
                                         <Checkbox
                                           checked={selected.some(e => e.id === msg.id)}
-                                          onChange={(e) => handleSelect(e.target.checked, msg)}
+                                          onChange={(e) => handleSelect(e.target.checked, msg, chatId)}
                                         />
                                         <span className="role" onClick={(e) => {
                                           e.stopPropagation();
@@ -436,7 +486,19 @@ export default function Chat() {
 
                     <button title='Reset Chat' onClick={() => handleChatReset(chatId)} className='input-button'><UndoIcon size={16} /></button>
                     <button title='Add Message' onClick={() => handleNewMessage(chatId)} className='input-button'><PlusIcon size={24} /></button>
-                    <button title='Summarize' onClick={() => { if (selected.length > 0) handleSummarize(chatId) }} className={selected.length > 0 ? 'input-button' : 'input-button-disabled'}><StackIcon size={16} /></button>
+                    <div onMouseLeave={handleSummarizeHoverLeave} >
+                      <button title='Summarize' onMouseEnter={(e) => handleSummarizeHover(chatId)} onClick={() => { if (hasSelectedMessage(chatId)) handleSummarize(chatId) }} className={hasSelectedMessage(chatId) ? 'input-button' : 'input-button-disabled'}><StackIcon size={16} /></button>
+                      {
+                        <div className={`text-area-modal ${hoveredChatId === chatId ? 'visible' : ''}`}>
+                          <TextArea
+                            id={`summary-prompt-text-area-id-${chatId}`}
+                            defaultValue={summaryPrompt}
+                            onChange={(e) => setSummaryPrompt(e.target.value)}
+                            autoSize
+                          />
+                        </div>
+                      }
+                    </div>
                     <textarea
                       ref={textAreaRef}
                       type="text"
