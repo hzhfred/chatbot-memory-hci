@@ -4,7 +4,7 @@ import DropdownMenu from './components/DropdownMenu';
 import RoleDropdownMenu from './components/RoleDropdownMenu';
 import { runLLM } from './utils/api';
 const { TextArea } = Input;
-import { LoadingOutlined, SwitcherOutlined, UndoOutlined } from '@ant-design/icons';
+import { LoadingOutlined, SwitcherOutlined, UndoOutlined, CaretDownOutlined, DownOutlined } from '@ant-design/icons';
 const antIcon = <LoadingOutlined className='typing-indicator' spin />;
 import { Checkbox, Input, Spin } from 'antd';
 import 'styles/chat.css';
@@ -17,6 +17,7 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon } from '@primer/octicons-react';
+import { Truculenta } from 'next/font/google';
 
 export default function Chat() {
   const [chats, setChats] = useState({ [`chat-${uuidv4()}`]: [] });
@@ -263,33 +264,40 @@ export default function Chat() {
     console.log("Filtered Messages:", messageList);
   
     // Append the summaryMessage at the end
-    messageList.push(summaryMessage);
+    const summarizePrompt = [...messageList, summaryMessage];
   
     console.log("Final Message List:", messageList);
 
-    runLLM(messageList).then(response => {
+    runLLM(summarizePrompt).then(response => {
       console.log(response);
 
-      const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false, selected: false };
+      const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false, selected: false, children: messageList, cascade: false };
       setChats(prevChats => {
         const newChats = { ...prevChats };
+
+        // Remove the selected messages from newChats[chatId]
+        newChats[chatId] = newChats[chatId].filter(msg => !selectedIds.includes(msg.id));
+
+        // Add the summary message at the beginning of the list
         newChats[chatId] = [summary, ...newChats[chatId]];
         return newChats;
       });
 
-    }).then(() => {
-      setChats(prevChats => {
-        const newChats = { ...prevChats };
-        for (let chatId in newChats) {
-          newChats[chatId] = newChats[chatId].map(msg =>
-            selected.find(s => s.id === msg.id) ? { ...msg, visible: false, child: true, selected: false} : msg
-          );
-        }
-        return newChats;
-      });
     });
 
     setSelected([]);
+  };
+
+  const handleCascade = (chatId, messageId) => { 
+    setChats(prevChats => {
+      const newChats = { ...prevChats };
+      const chat = newChats[chatId];
+      const messageIndex = chat.findIndex(msg => msg.id === messageId);
+      if (messageIndex !== -1) {
+        chat[messageIndex].cascade = !chat[messageIndex].cascade; // toggle the value
+      }
+      return newChats;
+    });
   };
 
   const handleSend = async (chatId) => {
@@ -383,7 +391,6 @@ export default function Chat() {
                           {(provided) => (
                             <AnimatePresence>
                               <motion.li
-                                className={msg.child ? "child-message" : ""}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                                 ref={provided.innerRef}
@@ -395,20 +402,24 @@ export default function Chat() {
                                 transition={{ duration: 0.5, ease: "easeInOut" }}
                               >
                                 <li {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef} onMouseEnter={() => handleMouseEnter(msg.id)} onMouseLeave={handleMouseLeave}>
+                                  <div className={msg.role === "summary" ? 'summary-message' : ''}>
                                   <div className={msg.visible ? 'message-wrapper' : 'message-wrapper message-hidden'}>
+                                    
                                     <div className="message-role">
+                                      
                                       <div className='role-box'>
                                         <Checkbox
                                           checked={selected.some(e => e.id === msg.id)}
                                           onChange={(e) => handleSelect(e.target.checked, msg, chatId)}
                                         />
                                         <span className="role" onClick={(e) => {
-                                          e.stopPropagation();
+                                          
                                           handleRoleDropdownToggle(msg.id)
                                         }}>
                                           {msg.role}
                                         </span>
                                       </div>
+                                      
                                       <AnimatePresence>
                                         {roleDropdownId === msg.id && roleDropdownOpen && (
                                           <motion.div
@@ -437,6 +448,11 @@ export default function Chat() {
                                         setEditMessageId={setEditMessageId}
                                         setEdit={setEdit}
                                       />
+                                      {msg.role == "summary" && (
+                                        <div className='summary-dropdown' onClick={e => { console.log("Button clicked!"); handleCascade(chatId, msg.id); }}>
+                                          <CaretDownOutlined className={msg.cascade ? 'cascade-icon cascade-icon-up' : 'cascade-icon'} />
+                                        </div>
+                                      )}
                                     </div>
                                     <div className="message-content">
                                       {editMessageId === msg.id ? (
@@ -471,6 +487,57 @@ export default function Chat() {
                                       )}
                                     </div>
                                   </div>
+                                  </div>
+                                  {msg.role === "summary" && (
+                                    <div className='summary-children-container'>
+                                    <ul>
+                                      {msg.children && msg.children.map((child, index) => (
+                                        <li key={child.id} id={child.id} >
+                                          <div className={msg.cascade ? 'parent-message-wrapper child-message-expanded' : 'parent-message-wrapper child-message-retracted'} style={{ zIndex: msg.children.length - index }}>
+                                            <div className="message-role">
+                                              <div className='role-box'>
+                                                  {child.role}
+                                              </div>
+                                            </div>
+                                            <div className="message-content">
+                                              {editMessageId === child.id ? (
+                                                <TextArea
+                                                  ref={editTextAreaRef}
+                                                  autoSize
+                                                  size='small'
+                                                  className='edit-box'
+                                                  type='text'
+                                                  defaultValue={edit}
+                                                  onChange={e => { handleEditChange(e) }}
+                                                  onKeyDown={e => {
+                                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                                      e.preventDefault();
+                                                      handleEdit(chatId, child.id, edit);
+                                                    }
+                                                  }}
+                                                />
+                                              ) : (
+                                                <div className='message-text' >
+                                                  <div className={`markdown-container ${!msg.cascade ? 'markdown-container-contracted' : ''}`}>
+                                                  {
+                                                    child.content.trim() !== '' ?
+                                                      (<ReactMarkdown 
+                                                          components={components}
+                                                          remarkPlugins={remarkGfm}
+                                                          children={child.content.toLowerCase().split('\n').map(line => line + '  ').join('\n')}
+                                                      />) : (
+                                                      <p className='placeholder-markdown'>type a message...</p>)
+                                                  }
+                                                  </div>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                    </div>
+                                  )}
                                 </li>
                               </motion.li>
                             </AnimatePresence>

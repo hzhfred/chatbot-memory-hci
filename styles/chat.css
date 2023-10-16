@@ -11,6 +11,7 @@
 }
 
 .chat-instances-container {
+  
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -41,7 +42,6 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  margin-bottom: 0.7em; /* Provide space between messages */
 }
 
 .message-role {
@@ -50,24 +50,63 @@
   text-align: left; /* Aligns text to the right */
 }
 
-.child-message {
-  z-index: 1;
-  margin-top: -50px;
-} 
-
 .message-wrapper {
+  opacity: 1;
   font-size: 16px;
   display: flex;
   align-items: left;
   transition: transform 0.2s ease-in-out;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 5px 15px;
+  background-color: rgb(255, 255, 255);
   padding-left: 20px;
   padding-top: 25px;
   padding-bottom: 10px;
   border-radius: 20px;
+  margin-bottom: 1em;
+}
+
+.summary-message {
+  transform: translateX(17.1em);
+  z-index: 2;
+  position: relative;
+}
+
+.summary-children-container {
+  position: relative;
+  z-index: 1;
+  transform: translateX(-17.15em);
+  margin-top: 7.3em;
+  margin-bottom: 1em;
+}
+
+.parent-message-wrapper {
+  position: relative;
+  opacity: 1;
+  font-size: 16px;
+  display: flex;
+  align-items: left;
+  transition: transform 0.2s ease-in-out;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 5px 15px;
+  background-color: rgb(255, 255, 255);
+  padding-left: 20px;
+  padding-top: 25px;
+  padding-bottom: 10px;
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.child-message-retracted {
+  transition: margin-top 0.2s ease-in-out;
+  margin-top: -5em;
+}
+
+.child-message-expanded {
+  transition: margin-top 0.2s ease-in-out;
+  margin-top: 1em;
 }
 
 .message-content {
+  
   color: rgb(110, 110, 110);
   justify-content: space-between;
   text-align: left; /* Aligns text to the right */
@@ -76,6 +115,8 @@
   margin-left: 0.5em;
   margin-bottom: 0.3em;
   word-wrap: break-word;
+  position: relative;
+  height: 100%;
 }
 
 .action-wrapper {
@@ -130,7 +171,6 @@
   border: 1px solid #ffffff; /* Adds a light gray border */
   border-radius: 0.7em; /* Rounds the corners */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
-  z-index: 1000; /* Ensures the dropdown appears on top of other elements */
   margin-top: 5px;
   margin-left: 0px;
 }
@@ -178,6 +218,39 @@
 
 .message-actions:active {
   transform: scale(0.8);
+}
+
+.summary-dropdown {
+  position: relative;
+  z-index: 1000;
+  perspective: 1000px;
+  border-radius: 0.4em;
+  transition: transform 0.1s ease-in-out;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: rgb(233, 233, 233);
+  color: rgb(179, 179, 179);
+  position: relative;
+  align-content: center;
+  left: 250%;
+  top: 9%;
+  width: 3em;
+}
+
+.summary-dropdown:hover {
+  color: rgb(160, 160, 160);
+  cursor: pointer;
+}
+
+.cascade-icon {
+  transition: transform 0.3s ease-in-out;
+  transform-style: preserve-3d;
+  margin-left: 1em;
+}
+
+.cascade-icon-up {
+  transition: transform 0.3s ease-in-out;
+  transform-style: preserve-3d;
+  transform: rotateX(180deg);
 }
 
 .message-text {
@@ -337,7 +410,6 @@
   padding-top: 5px;
   padding-bottom: 5px;
   resize: none;
-  overflow: hidden;
   line-height: 20px;
   height: 20px;
   border-radius: 8px;
@@ -360,9 +432,7 @@
   margin-left: -1em;
   margin-right: 1em;
   resize: both;
-
   border-radius: 0.5em;
-  overflow: hidden;
 }
 
 .role-icon {
@@ -370,7 +440,6 @@
 }
 
 .dropdown-menu {
-  /* position: absolute; */
   display: flex;
   flex-direction: row;
   /* background-color: #fff; */
@@ -379,7 +448,6 @@
   /* border: 1px solid #ffffff; */
   border-radius: 5px;
   /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); */
-  z-index: 1000;
   right: 1;
   /* margin-top: -55px; */
   /* margin-left: 40px; */
@@ -456,7 +524,14 @@ ul, ol {
 
 /* Apply to the specific container */
 .markdown-container {
-  overflow: auto;
+  transition: height 0.5s ease-in-out;
+  overflow: hidden;
+}
+
+.markdown-container-contracted {
+  transition: height 0.5s ease-in-out;
+  overflow: hidden;
+  height: 3em;
 }
 
 /* This applies to the entire document */
@@ -491,11 +566,11 @@ ul, ol {
 }
 
 .text-area-modal {
+  transform: translateX(5em);
   opacity: 0;
   transition: opacity 0.1s ease-in-out;
-  z-index: 1001;
-  position: absolute;
-  margin-left: -70px;
+  position: relative;
+  margin-left: -10em;
   padding: 10px;
   padding-bottom: 50px;
 }
