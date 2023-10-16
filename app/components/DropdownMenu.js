@@ -20,19 +20,39 @@ const DropdownMenu = ({ chatId, message, onClose, chats, setChats, setDropdownMe
   };
 
   const duplicateMessage = () => {
-    let duplicatedMessage = { id: uuidv4(), role: message.role, content: message.content, visible: message.visible, child: false, selected: false };
+    let duplicatedMessageList = [];  // Declare outside of if-else
+
+    if (message.role === "summary") {
+      message.children.forEach(child => {
+        duplicatedMessageList.push({ 
+          id: uuidv4(), 
+          role: child.role, 
+          content: child.content, 
+          visible: true, 
+          child: false, 
+          selected: false 
+        });
+      });
+    } else {
+      duplicatedMessageList = [{ 
+        id: uuidv4(), 
+        role: message.role, 
+        content: message.content, 
+        visible: message.visible, 
+        child: false, 
+        selected: false 
+      }];
+    }
+
     setChats(prevChats => {
       const newChats = {...prevChats};
       const messages = newChats[chatId];
       const index = messages.indexOf(message);
-      const updateList = [
-        ...messages.slice(0, index + 1),
-        duplicatedMessage,
-        ...messages.slice(index + 1)
-      ];
+      const updateList = [...messages.slice(0, index + 1), ...duplicatedMessageList, ...messages.slice(index + 1)];
       newChats[chatId] = updateList;
       return newChats;
     });
+
     onClose();
   };
 
