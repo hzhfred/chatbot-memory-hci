@@ -3,10 +3,10 @@
 import DropdownMenu from './components/DropdownMenu';
 import RoleDropdownMenu from './components/RoleDropdownMenu';
 import { runLLM } from './utils/api';
-const { TextArea } = Input;
 import { LoadingOutlined, SwitcherOutlined, UndoOutlined, CaretDownOutlined, DownOutlined } from '@ant-design/icons';
 const antIcon = <LoadingOutlined className='typing-indicator' spin />;
 import { Checkbox, Input, Spin } from 'antd';
+const { TextArea } = Input;
 import 'styles/chat.css';
 import React, { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -489,7 +489,7 @@ export default function Chat() {
                                   </div>
                                   </div>
                                   {msg.role === "summary" && (
-                                    <div className='summary-children-container'>
+                                    <div className={msg.visible ? 'summary-children-container-visible' : 'summary-children-container-hidden'}>
                                     <ul>
                                       {msg.children && msg.children.map((child, index) => (
                                         <li key={child.id} id={child.id} >

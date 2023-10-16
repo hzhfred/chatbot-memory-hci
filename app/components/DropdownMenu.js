@@ -20,7 +20,7 @@ const DropdownMenu = ({ chatId, message, onClose, chats, setChats, setDropdownMe
   };
 
   const duplicateMessage = () => {
-    let duplicatedMessage = { id: uuidv4(), role: message.role, content: message.content, visible: message.visible };
+    let duplicatedMessage = { id: uuidv4(), role: message.role, content: message.content, visible: message.visible, child: false, selected: false };
     setChats(prevChats => {
       const newChats = {...prevChats};
       const messages = newChats[chatId];
@@ -59,6 +59,14 @@ const DropdownMenu = ({ chatId, message, onClose, chats, setChats, setDropdownMe
       const messageIndex = messages.findIndex(msg => msg.id === message.id);
       if (messageIndex !== -1) {
         messages[messageIndex].visible = !messages[messageIndex].visible;
+        if (messages[messageIndex].children) {
+          messages[messageIndex].children.forEach(child => {
+            const childIndex = messages.findIndex(msg => msg.id === child);
+            if (childIndex !== -1) {
+              messages[childIndex].visible = !messages[childIndex].visible;
+            }
+          });
+        }
       }
       return newChats;
     });

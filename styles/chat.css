@@ -71,7 +71,16 @@
   position: relative;
 }
 
-.summary-children-container {
+.summary-children-container-visible {
+  position: relative;
+  z-index: 1;
+  transform: translateX(-17.15em);
+  margin-top: 7.3em;
+  margin-bottom: 1em;
+}
+
+.summary-children-container-hidden {
+  opacity: 20%;
   position: relative;
   z-index: 1;
   transform: translateX(-17.15em);
@@ -396,6 +405,7 @@
 }
 
 .input-box {
+  margin-left: -8em;
   width: 200px; /* Set an initial width */
   transition: width 0.3s ease-in-out;
   font-family: 'Inter', sans-serif;
@@ -488,7 +498,7 @@
 }
 
 .message-hidden {
-  opacity: 25%;
+  opacity: 50%;
 }
 
 .markdown-container h1,
@@ -566,13 +576,10 @@ ul, ol {
 }
 
 .text-area-modal {
-  transform: translateX(5em);
+  transform: translate(-3.75em, 0.75em);
   opacity: 0;
   transition: opacity 0.1s ease-in-out;
   position: relative;
-  margin-left: -10em;
-  padding: 10px;
-  padding-bottom: 50px;
 }
 
 .text-area-modal.visible {
