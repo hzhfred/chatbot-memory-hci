@@ -334,6 +334,12 @@ export default function Chat() {
 
         runLLM(messageList).then(response => {
           setIsTyping(false);
+          // const responselist = String(response).split(/\r?\n|\r|\n/g);
+          // responselist.forEach((element) => {
+          //   const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(element), visible: true, child: false, selected: false };
+          //   newChat.push(assistantMessage);
+          // });
+
           const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(response), visible: true, child: false, selected: false };
           newChat.push(assistantMessage);
         });
