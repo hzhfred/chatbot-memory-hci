@@ -370,7 +370,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="all-chat-container">
+    <div className="app-container">
       <AnimatePresence>
         {Object.values(chats).every(chat => chat.length === 0) &&
           <motion.div
@@ -408,8 +408,10 @@ export default function Chat() {
                                 transition={{ duration: 0.5, ease: "easeInOut" }}
                               >
                                 <li {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef} onMouseEnter={() => handleMouseEnter(msg.id)} onMouseLeave={handleMouseLeave}>
-                                  <div className={msg.role === "summary" ? 'summary-message' : ''}>
-                                  <div className={msg.visible ? 'message-wrapper' : 'message-wrapper message-hidden'}>
+                                  <div className={
+                                    (msg.role === 'summary' ? 'message-wrapper summary-message-wrapper' : 'message-wrapper') +
+                                    (!msg.visible ? ' message-hidden' : '')
+                                  }>
                                     
                                     <div className="message-role">
                                       
@@ -493,9 +495,8 @@ export default function Chat() {
                                       )}
                                     </div>
                                   </div>
-                                  </div>
                                   {msg.role === "summary" && (
-                                    <div className={msg.visible ? 'summary-children-container' : 'message-hidden-super summary-children-container'}>
+                                    <div className={msg.visible ? 'summary-children-container' : 'message-hidden-child summary-children-container'}>
                                     <ul>
                                       {msg.children && msg.children.map((child, index) => (
                                         <li key={child.id} id={child.id} >
