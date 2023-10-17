@@ -95,7 +95,7 @@
   display: flex;
   align-items: left;
   transition: transform 0.2s ease-in-out;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 5px 15px;
+
   background-color: rgb(255, 255, 255);
   padding-left: 20px;
   padding-top: 25px;

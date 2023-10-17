@@ -493,7 +493,7 @@ export default function Chat() {
                                     <ul>
                                       {msg.children && msg.children.map((child, index) => (
                                         <li key={child.id} id={child.id} >
-                                          <div className={msg.cascade ? 'parent-message-wrapper child-message-expanded' : 'parent-message-wrapper child-message-retracted'} style={{ zIndex: msg.children.length - index }}>
+                                          <div className={msg.cascade ? 'parent-message-wrapper child-message-expanded' : 'parent-message-wrapper child-message-retracted'} style={{ zIndex: msg.children.length - index, boxShadow: `0px 5px 15px 0px rgba(0, 0, 0, ${(0.1 / msg.children.length) * (msg.children.length - index)})` }}>
                                             <div className="message-role">
                                               <div className='role-box'>
                                                   {child.role}
