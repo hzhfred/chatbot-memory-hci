@@ -3,9 +3,7 @@ import Chat from './chat';
 
 function Page() {
   return (
-    <div>
       <Chat />
-    </div>
   );
 }
 

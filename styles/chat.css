@@ -1,3 +1,7 @@
+html, body {
+  height: 100%;
+  }
+
 .chat-container {
   flex: 1 0 auto;
   display: flex;
@@ -10,13 +14,26 @@
   min-width: 300px;
 }
 
+.all-chat-container {
+  flex: 1 0 auto;
+  display: flex;
+  margin: 1em;
+  min-height: 100vh;
+  color: rgb(61, 61, 61);
+  min-width: 300px;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+
+}
+
 .chat-instances-container {
   
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
-  overflow-x: auto;
+  /* overflow-x: auto; */
   height: 100%;
 }
   
@@ -34,6 +51,10 @@
 }
 
 .message-list {
+  padding: 0; /* Remove padding */
+  width: fit-content; /* Shrink wrap content */
+}
+.all-message-list {
   padding: 0; /* Remove padding */
   width: fit-content; /* Shrink wrap content */
 }

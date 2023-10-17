@@ -364,7 +364,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="chat-container">
+    <div className="all-chat-container">
       <AnimatePresence>
         {Object.values(chats).every(chat => chat.length === 0) &&
           <motion.div
@@ -378,7 +378,7 @@ export default function Chat() {
           </motion.div>
         }
       </AnimatePresence>
-      <motion.div layoutId='message-list' className="message-list">
+      <motion.div layoutId='message-list' className="all-message-list">
         <DragDropContext onDragEnd={handleOnDragEnd}>
           <div className="chat-instances-container">
             {Object.keys(chats).map((chatId) => (
