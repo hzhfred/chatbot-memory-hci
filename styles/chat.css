@@ -39,7 +39,7 @@
 }
 
 .message-list li {
-  display: flex;
+  display: block;
   justify-content: center;
   align-items: flex-start;
 }
@@ -66,7 +66,7 @@
 }
 
 .summary-message {
-  transform: translateX(17.1em);
+  /* transform: translateX(17.1em); */
   z-index: 2;
   position: relative;
 }
@@ -74,8 +74,9 @@
 .summary-children-container {
   position: relative;
   z-index: 1;
-  transform: translateX(-17.15em);
-  margin-top: 7.3em;
+  /* transform: translateX(-17.15em); */
+  /* margin-top: 7.3em; */
+  opacity: 40%;
   margin-bottom: 1em;
 }
 
@@ -221,19 +222,23 @@
 }
 
 .summary-dropdown {
-  position: relative;
+  position: absolute;
   z-index: 1000;
   perspective: 1000px;
-  border-radius: 0.4em;
+  /* border-radius: 0.4em; */
   transition: transform 0.1s ease-in-out;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   background-color: rgb(233, 233, 233);
   color: rgb(179, 179, 179);
-  position: relative;
-  align-content: center;
-  left: 250%;
-  top: 9%;
-  width: 3em;
+  text-align: center;
+  left: 2.5%;
+  bottom: -1em;
+  width: 95%;
+  height: 1em;
+  /* border-top-left-radius: 0.4em;
+  border-top-right-radius: 0.4em; */
+  border-bottom-right-radius: 0.4em;
+  border-bottom-left-radius: 0.4em;
 }
 
 .summary-dropdown:hover {
@@ -488,7 +493,11 @@
 }
 
 .message-hidden {
-  opacity: 25%;
+  opacity: 40%;
+}
+
+.message-hidden-super {
+  opacity: 20%;
 }
 
 .markdown-container h1,

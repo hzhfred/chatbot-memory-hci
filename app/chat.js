@@ -279,7 +279,7 @@ export default function Chat() {
         newChats[chatId] = newChats[chatId].filter(msg => !selectedIds.includes(msg.id));
 
         // Add the summary message at the beginning of the list
-        newChats[chatId] = [summary, ...newChats[chatId]];
+        newChats[chatId] = [...newChats[chatId],summary];
         return newChats;
       });
 
@@ -489,7 +489,7 @@ export default function Chat() {
                                   </div>
                                   </div>
                                   {msg.role === "summary" && (
-                                    <div className='summary-children-container'>
+                                    <div className={msg.visible ? 'summary-children-container' : 'message-hidden-super summary-children-container'}>
                                     <ul>
                                       {msg.children && msg.children.map((child, index) => (
                                         <li key={child.id} id={child.id} >
