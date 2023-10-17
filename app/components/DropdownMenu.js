@@ -20,28 +20,39 @@ const DropdownMenu = ({ chatId, message, onClose, chats, setChats, setDropdownMe
   };
 
   const duplicateMessage = () => {
-    let duplicatedMessage = {}
-    if (message.role == 'summary'){
-      duplicatedMessage = { id: uuidv4(), role: message.role, content: message.content, visible: message.visible, child: message.child, children: message.children, cascade: false };
+    let duplicatedMessageList = [];  // Declare outside of if-else
 
-    } else{
-      duplicatedMessage = { id: uuidv4(), role: message.role, content: message.content, visible: message.visible };
-
+    if (message.role === "summary") {
+      message.children.forEach(child => {
+        duplicatedMessageList.push({ 
+          id: uuidv4(), 
+          role: child.role, 
+          content: child.content, 
+          visible: true, 
+          child: false, 
+          selected: false 
+        });
+      });
+    } else {
+      duplicatedMessageList = [{ 
+        id: uuidv4(), 
+        role: message.role, 
+        content: message.content, 
+        visible: message.visible, 
+        child: false, 
+        selected: false 
+      }];
     }
-
 
     setChats(prevChats => {
       const newChats = {...prevChats};
       const messages = newChats[chatId];
       const index = messages.indexOf(message);
-      const updateList = [
-        ...messages.slice(0, index + 1),
-        duplicatedMessage,
-        ...messages.slice(index + 1)
-      ];
+      const updateList = [...messages.slice(0, index + 1), ...duplicatedMessageList, ...messages.slice(index + 1)];
       newChats[chatId] = updateList;
       return newChats;
     });
+
     onClose();
   };
 
@@ -68,6 +79,14 @@ const DropdownMenu = ({ chatId, message, onClose, chats, setChats, setDropdownMe
       const messageIndex = messages.findIndex(msg => msg.id === message.id);
       if (messageIndex !== -1) {
         messages[messageIndex].visible = !messages[messageIndex].visible;
+        if (messages[messageIndex].children) {
+          messages[messageIndex].children.forEach(child => {
+            const childIndex = messages.findIndex(msg => msg.id === child);
+            if (childIndex !== -1) {
+              messages[childIndex].visible = !messages[childIndex].visible;
+            }
+          });
+        }
       }
       return newChats;
     });
