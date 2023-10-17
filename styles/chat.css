@@ -10,6 +10,33 @@
   min-width: 300px;
 }
 
+.app-container {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  margin: 1em;
+  min-height: 100vh; /* Adjust this as needed */
+  color: rgb(61, 61, 61);
+  min-width: 300px;
+}
+
+.title {
+  margin: 0;
+  padding: 0;
+  text-shadow: 0 0 2em rgb(0, 0, 0, 0.5);
+  opacity: 10%;
+  font-size: 30px; 
+  font-weight: 800;
+  left: 45%;
+  display: flex;
+  position: fixed;
+  text-align: center;
+  justify-content: center;
+  user-select: none;
+}
+
 .chat-instances-container {
   
   display: flex;
@@ -483,19 +510,6 @@
 
 .dropdown-menu button:active {
   transform: scale(0.9);
-}
-
-.title {
-  text-shadow: 0 0 2em rgb(0, 0, 0, 0.5);
-  opacity: 10%;
-  font-size: 30px; 
-  font-weight: 800;
-  left: 14%;
-  display: flex;
-  position: relative;
-  text-align: center;
-  justify-content: center;
-  user-select: none;
 }
 
 .message-hidden {

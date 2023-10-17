@@ -364,25 +364,25 @@ export default function Chat() {
   }
 
   return (
-    <div className="chat-container">
+    <div className="app-container">
+      <AnimatePresence>
+        {Object.values(chats).every(chat => chat.length === 0) &&
+          <motion.div
+            className="title"
+            variants={titleVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            Memory Sandbox
+          </motion.div>
+        }
+      </AnimatePresence>
       <motion.div layoutId='message-list' className="message-list">
         <DragDropContext onDragEnd={handleOnDragEnd}>
           <div className="chat-instances-container">
             {Object.keys(chats).map((chatId) => (
               <div key={chatId} className="chat-container">
-                <AnimatePresence>
-                  {Object.values(chats).every(chat => chat.length === 0) &&
-                    <motion.div
-                      className="title"
-                      variants={titleVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                    >
-                      Memory Sandbox
-                    </motion.div>
-                  }
-                </AnimatePresence>
                 <Droppable key={chatId} droppableId={chatId}>
                   {(provided) => (
                     <ul className="message-list" {...provided.droppableProps} ref={provided.innerRef}>
