@@ -20,7 +20,16 @@ const DropdownMenu = ({ chatId, message, onClose, chats, setChats, setDropdownMe
   };
 
   const duplicateMessage = () => {
-    let duplicatedMessage = { id: uuidv4(), role: message.role, content: message.content, visible: message.visible };
+    let duplicatedMessage = {}
+    if (message.role == 'summary'){
+      duplicatedMessage = { id: uuidv4(), role: message.role, content: message.content, visible: message.visible, child: message.child, children: message.children, cascade: false };
+
+    } else{
+      duplicatedMessage = { id: uuidv4(), role: message.role, content: message.content, visible: message.visible };
+
+    }
+
+
     setChats(prevChats => {
       const newChats = {...prevChats};
       const messages = newChats[chatId];
