@@ -104,13 +104,14 @@ html, body {
   transform: translateX(17.1em);
   z-index: 2;
   position: relative;
+  padding-bottom: 25px;
 }
 
 .summary-children-container {
   position: relative;
   z-index: 1;
   transform: translateX(-17.15em);
-  margin-top: 6.1em;
+  margin-top: 7em;
   opacity: 80%;
   margin-bottom: 1em;
 }
