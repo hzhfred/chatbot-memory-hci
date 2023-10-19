@@ -280,15 +280,22 @@ html, body {
 }
 
 .cascade-icon {
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.1s ease-in-out;
   transform-style: preserve-3d;
   margin-left: 1em;
+  transform: scaleX(2);
+}
+
+.summary-dropdown:hover .cascade-icon {
+  transform: scaleX(3);
 }
 
 .cascade-icon-up {
-  transition: transform 0.3s ease-in-out;
-  transform-style: preserve-3d;
-  transform: rotateX(180deg);
+  transform: rotateX(180deg) scaleX(2);
+}
+
+.summary-dropdown:hover .cascade-icon.cascade-icon-up {
+  transform: scaleX(3) rotateX(180deg);
 }
 
 .message-text {
@@ -601,8 +608,10 @@ ul, ol {
   opacity: 0;
   transition: opacity 0.1s ease-in-out;
   position: relative;
+  pointer-events: none;
 }
 
 .text-area-modal.visible {
+  pointer-events: all;
   opacity: 1;
 }
