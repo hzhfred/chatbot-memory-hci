@@ -133,12 +133,12 @@ html, body {
 }
 
 .child-message-retracted {
-  transition: margin-top 0.2s ease-in-out;
+  transition: margin-top 2s ease-in-out;
   margin-top: -5em;
 }
 
 .child-message-expanded {
-  transition: margin-top 0.2s ease-in-out;
+  transition: margin-top 2s ease-in-out;
   margin-top: 1em;
 }
 
