@@ -306,7 +306,7 @@ export default function Chat() {
       content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
     };
 
-    const prompt = messages[chatId].trim();
+    const prompt = messages[chatId] ? messages[chatId].trim() : "";
     const userMessage = { id: `message-${uuidv4()}`, role: "user", content: String(prompt), visible: true, child: false, selected: false };
     const visibleMessages = chats[chatId].filter(msg => msg.visible && (msg.content !== ""));
 
@@ -354,7 +354,7 @@ export default function Chat() {
     let baseDuration = 0.1;
     if (index === 0) return `${baseDuration}s`; // Keep the first item unchanged
   
-    let modification = 0.2 * index;
+    let modification = 0.1 * index;
     if (isOpening) {
       return `${baseDuration - modification}s`;
     } else {

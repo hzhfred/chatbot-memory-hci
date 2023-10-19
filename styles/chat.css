@@ -24,17 +24,16 @@ html, body {
   justify-content: center;
   min-height: 100vh; /* Adjust this as needed */
   color: rgb(61, 61, 61);
-  min-width: 300px;
+  min-width: 50vh;
 }
 
 .title {
-  margin: 0;
+  margin-left: 4.2em;
   padding: 0;
   text-shadow: 0 0 2em rgb(0, 0, 0, 0.5);
   opacity: 10%;
   font-size: 30px; 
-  font-weight: 800;
-  left: 47.5%;
+  font-weight: 700;
   display: flex;
   position: absolute;
   text-align: center;
@@ -103,6 +102,7 @@ html, body {
 
 .summary-message-wrapper {
   transform: translateX(17.1em);
+
   z-index: 2;
   position: relative;
   padding-bottom: 25px;
