@@ -8,10 +8,12 @@ html, body {
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  margin: 1em;
-  min-height: 100vh; /* Adjust this as needed */
+  margin: 2em;
+  /* box-shadow: rgba(0, 0, 0, 0.1) 0px 5px 15px; */
+  min-height: 1em; /* Adjust this as needed */
   color: rgb(61, 61, 61);
   min-width: 300px;
+
 }
 
 .app-container {
@@ -20,7 +22,6 @@ html, body {
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  margin: 1em;
   min-height: 100vh; /* Adjust this as needed */
   color: rgb(61, 61, 61);
   min-width: 300px;
@@ -33,16 +34,16 @@ html, body {
   opacity: 10%;
   font-size: 30px; 
   font-weight: 800;
-  left: 45%;
+  left: 47.5%;
   display: flex;
-  position: fixed;
+  position: absolute;
   text-align: center;
   justify-content: center;
   user-select: none;
 }
 
 .chat-instances-container {
-  
+  /* box-shadow: rgba(0, 0, 0, 0.1) 0px 5px 15px; */
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -610,6 +611,7 @@ ul, ol {
   transition: opacity 0.1s ease-in-out;
   position: relative;
   pointer-events: none;
+  margin-bottom: -5em;
 }
 
 .text-area-modal.visible {
