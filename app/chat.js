@@ -5,7 +5,7 @@ import RoleDropdownMenu from './components/RoleDropdownMenu';
 import { runLLM } from './utils/api';
 import { LoadingOutlined, SwitcherOutlined, UndoOutlined, CaretDownOutlined, DownOutlined } from '@ant-design/icons';
 const antIcon = <LoadingOutlined className='typing-indicator' spin />;
-import { Checkbox, Input, Spin } from 'antd';
+import { Checkbox, Input, Spin, Button, Space, FloatButton } from 'antd';
 const { TextArea } = Input;
 import 'styles/chat.css';
 import React, { useState, useEffect, useRef } from 'react';
@@ -20,6 +20,7 @@ import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIc
 import { Truculenta } from 'next/font/google';
 
 export default function Chat() {
+  const [loadings, setLoadings] = useState({});
   const [chats, setChats] = useState({ [`chat-${uuidv4()}`]: [] });
   const [messages, setMessages] = useState({});
   const [editMessageId, setEditMessageId] = useState(null);
@@ -58,7 +59,9 @@ export default function Chat() {
   };
 
   const handleSummarizeHoverLeave = () => {
-    setHoveredChatId(null);
+    setTimeout(() => {
+      setHoveredChatId(null);
+    }, 200);
   };
 
   const handleMouseEnter = (id) => {
@@ -234,6 +237,9 @@ export default function Chat() {
   };
 
   const handleSummarize = async (chatId) => {
+
+    setLoadings(prevLoadings => ({ ...prevLoadings, [chatId]: true }));
+
     const summaryMessage = {
       role: "user",
       content: summaryPrompt,
@@ -267,23 +273,27 @@ export default function Chat() {
     const summarizePrompt = [...messageList, summaryMessage];
   
     console.log("Final Message List:", messageList);
+    
+    const runAsyncTasks = async () => {
+      await runLLM(summarizePrompt).then(response => {
+        console.log(response);
 
-    runLLM(summarizePrompt).then(response => {
-      console.log(response);
+        const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false, selected: false, children: messageList, cascade: false };
+        setChats(prevChats => {
+          const newChats = { ...prevChats };
 
-      const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false, selected: false, children: messageList, cascade: false };
-      setChats(prevChats => {
-        const newChats = { ...prevChats };
+          // Remove the selected messages from newChats[chatId]
+          newChats[chatId] = newChats[chatId].filter(msg => !selectedIds.includes(msg.id));
 
-        // Remove the selected messages from newChats[chatId]
-        newChats[chatId] = newChats[chatId].filter(msg => !selectedIds.includes(msg.id));
-
-        // Add the summary message at the beginning of the list
-        newChats[chatId] = [...newChats[chatId],summary];
-        return newChats;
+          // Add the summary message at the beginning of the list
+          newChats[chatId] = [...newChats[chatId],summary];
+          return newChats;
+        });
+        setLoadings(prevLoadings => ({ ...prevLoadings, [chatId]: false }));
       });
+    };
 
-    });
+    runAsyncTasks();
 
     setSelected([]);
   };
@@ -300,54 +310,64 @@ export default function Chat() {
     });
   };
 
-  const handleSend = async (chatId) => {
+  const handleSend = (chatId) => {
+
+    const prompt = messages[chatId] ? messages[chatId].trim() : "";
+    const visibleMessages = chats[chatId].filter(msg => msg.visible && (msg.content !== ""));
+
+    if (prompt === "" && visibleMessages.length === 0) {
+      return;
+    }
+
+    setLoadings(prevLoadings => ({ ...prevLoadings, [chatId]: true }));
+
     const systemMessage = {
       role: "system",
       content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
     };
 
-    const prompt = messages[chatId] ? messages[chatId].trim() : "";
     const userMessage = { id: `message-${uuidv4()}`, role: "user", content: String(prompt), visible: true, child: false, selected: false };
-    const visibleMessages = chats[chatId].filter(msg => msg.visible && (msg.content !== ""));
 
-    if (prompt === "" && visibleMessages.length === 0) {
-      return;
-    } else {
-      setChats(prevChats => {
-        const newChats = { ...prevChats };
-        const newChat = [...newChats[chatId]];
+    setChats(prevChats => {
+      const newChats = { ...prevChats };
+      const newChat = [...newChats[chatId]];
 
-        if (prompt !== "") {
-          newChat.push(userMessage);
-        }
+      if (prompt !== "") {
+        newChat.push(userMessage);
+      }
 
-        setMessages(prevMessages => ({ ...prevMessages, [chatId]: '' }));
+      setMessages(prevMessages => ({ ...prevMessages, [chatId]: '' }));
 
-        const messageList = [systemMessage, ...newChat
-          .filter(msg => msg.visible)
-          .map(msg => ({
-            role: msg.role === "summary" ? "user" : msg.role,
-            content: msg.content
-          }))];
+      const messageList = [systemMessage, ...newChat
+        .filter(msg => msg.visible)
+        .map(msg => ({
+          role: msg.role === "summary" ? "user" : msg.role,
+          content: msg.content
+        }))];
 
-        setIsTyping(true);
+      setIsTyping(true);
 
-        runLLM(messageList).then(response => {
-          setIsTyping(false);
-          // const responselist = String(response).split(/\r?\n|\r|\n/g);
-          // responselist.forEach((element) => {
-          //   const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(element), visible: true, child: false, selected: false };
-          //   newChat.push(assistantMessage);
-          // });
+      const runAsyncTasks = async () => {
+        await Promise.all([
+          runLLM(messageList).then(response => {
+            setIsTyping(false);
+            // const responselist = String(response).split(/\r?\n|\r|\n/g);
+            // responselist.forEach((element) => {
+            //   const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(element), visible: true, child: false, selected: false };
+            //   newChat.push(assistantMessage);
+            // });
+            const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(response), visible: true, child: false, selected: false };
+            newChat.push(assistantMessage);
+          }),
+        ]);
+        setLoadings(prevLoadings => ({ ...prevLoadings, [chatId]: false }));
+      };
 
-          const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(response), visible: true, child: false, selected: false };
-          newChat.push(assistantMessage);
-        });
+      runAsyncTasks();
 
-        newChats[chatId] = newChat;
-        return newChats;
-      });
-    }
+      newChats[chatId] = newChat;
+      return newChats;
+    });
   };
 
   const getTransitionDuration = (index, isOpening) => {
@@ -577,21 +597,24 @@ export default function Chat() {
                 <motion.div layoutId={`input-container-layout-id-${chatId}`} layout transition={{ duration: 0.5 }} className="input-container" key={`input-container-key-${chatId}`} id={`input-container-id-${chatId}`}>
                   <div className="input-container" style={{ marginTop: 'auto' }}>
 
-                    <button title='Reset Chat' onClick={() => handleChatReset(chatId)} className='input-button'><UndoIcon size={16} /></button>
-                    <button title='Add Message' onClick={() => handleNewMessage(chatId)} className='input-button'><PlusIcon size={24} /></button>
-                    <div onMouseLeave={handleSummarizeHoverLeave} >
-                      <button title='Summarize' onMouseEnter={(e) => handleSummarizeHover(chatId)} onClick={() => { if (hasSelectedMessage(chatId)) handleSummarize(chatId) }} className={hasSelectedMessage(chatId) ? 'input-button' : 'input-button-disabled'}><StackIcon size={16} /></button>
-                      {
-                        <div className={`text-area-modal ${hoveredChatId === chatId ? 'visible' : ''}`}>
-                          <TextArea
-                            id={`summary-prompt-text-area-id-${chatId}`}
-                            defaultValue={summaryPrompt}
-                            onChange={(e) => setSummaryPrompt(e.target.value)}
-                            autoSize
-                          />
-                        </div>
-                      }
-                    </div>
+                    <Button type="primary" icon={<UndoIcon size={16} />} onClick={() => handleChatReset(chatId)} className='input-button input-button-left' title='Reset'>
+                    </Button>
+                    <Button type="primary" icon={<PlusIcon size={24} />} onClick={() => handleNewMessage(chatId)} className='input-button input-button-mid' title='Add Message'>
+                    </Button>
+
+                    <Button onMouseLeave={handleSummarizeHoverLeave} onMouseEnter={(e) => handleSummarizeHover(chatId)} type="primary" title='Summarize' onClick={() => { if (hasSelectedMessage(chatId)) handleSummarize(chatId) }} className={hasSelectedMessage(chatId) ? 'input-button input-button-right' : 'input-button-disabled input-button-right'} icon={<StackIcon size={16} />}>
+                    </Button>
+                    {
+                      <div className={`text-area-modal ${hoveredChatId === chatId ? 'visible' : ''}`}>
+                        <TextArea
+                          id={`summary-prompt-text-area-id-${chatId}`}
+                          defaultValue={summaryPrompt}
+                          onChange={(e) => setSummaryPrompt(e.target.value)}
+                          autoSize
+                        />
+                      </div>
+                    }
+
                     <textarea
                       ref={textAreaRef}
                       type="text"
@@ -605,7 +628,8 @@ export default function Chat() {
                         }
                       }}
                     />
-                    <button title='Send' onClick={() => handleSend(chatId)} className='input-button'><TriangleRightIcon size={24} /></button>
+                    <Button type="primary" icon={<TriangleRightIcon size={24} />} loading={loadings[chatId]} onClick={() => handleSend(chatId)} className='input-button' title='Send'>
+                    </Button>
                   </div>
                 </motion.div>
               </div>

@@ -320,6 +320,7 @@ html, body {
 }
 
 .input-container button {
+  
   /* font-family: var(--font-mono); */
   transition: transform 0.1s ease-in-out;
   background-color: rgb(219, 219, 219);
@@ -331,13 +332,12 @@ html, body {
   align-items: center; /* Vertically center the content */
   justify-content: center; /* Horizontally center the content */
   height: 30px;
-  width: 40px;
-  border-radius: 8px;
+  width: 30px;
 }
 
 .input-button:hover {
   color: gray;
-  transform: scale(1.07); /* Added hover effect */
+
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); /* Adds a slight shadow for depth */
 }
 
@@ -346,6 +346,7 @@ html, body {
 }
 
 .input-button {
+  
   transition: transform 0.1s ease-in-out;
   background-color: rgb(219, 219, 219);
   border: none; /* Removes the default button border */
@@ -356,12 +357,33 @@ html, body {
   align-items: center; /* Vertically center the content */
   justify-content: center; /* Horizontally center the content */
   height: 30px;
-  width: 40px;
+  width: 30px;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
+
   font-size: 16px;
   width: 50px;
   color: darkgray;
+}
+
+.input-button-mid {
+  border-radius: 0px;
+}
+
+.input-button-left {
+  margin-right: -10px;
+  border-bottom-left-radius: 8px;
+  border-top-left-radius: 8px;
+  border-bottom-right-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+.input-button-right {
+  margin-left: -10px;
+  border-bottom-left-radius: 0px;
+  border-top-left-radius: 0px;
+  border-bottom-right-radius: 8px;
+  border-top-right-radius: 8px;
+  margin-right: -11.2em;
 }
 
 .global-input-button-add-chat {
@@ -417,8 +439,6 @@ html, body {
 }
 
 .input-button-disabled {
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
   font-size: 16px;
   width: 40px;
   height: 30px;
@@ -443,7 +463,7 @@ html, body {
 }
 
 .input-box {
-  margin-left: -8em;
+
   width: 200px; /* Set an initial width */
   transition: width 0.3s ease-in-out;
   font-family: 'Inter', sans-serif;
@@ -606,12 +626,17 @@ ul, ol {
 }
 
 .text-area-modal {
-  transform: translate(-3.75em, 0.75em);
+  transform: translate(4em, 2.5em);
   opacity: 0;
   transition: opacity 0.1s ease-in-out;
   position: relative;
   pointer-events: none;
-  margin-bottom: -5em;
+  margin-bottom: 0em;
+}
+
+.text-area-modal:hover {
+  pointer-events: all;
+  opacity: 1;
 }
 
 .text-area-modal.visible {
