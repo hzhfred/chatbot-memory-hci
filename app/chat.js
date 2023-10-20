@@ -2,7 +2,6 @@
 
 import DropdownMenu from './components/DropdownMenu';
 import RoleDropdownMenu from './components/RoleDropdownMenu';
-import { runLLM } from './utils/api';
 import { LoadingOutlined, SwitcherOutlined, UndoOutlined, CaretDownOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons';
 const antIcon = <LoadingOutlined className='typing-indicator' spin />;
 import { Checkbox, Input, Spin, Button, Space, FloatButton, Tooltip, Dropdown, Menu } from 'antd';
@@ -17,9 +16,9 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon } from '@primer/octicons-react';
-import { Truculenta } from 'next/font/google';
 
 export default function Chat() {
+  const [streamingId, setStreamingId] = useState(null);
   const [loadings, setLoadings] = useState({});
   const [chats, setChats] = useState({ [`chat-${uuidv4()}`]: [] });
   const [messages, setMessages] = useState({});
@@ -234,25 +233,26 @@ export default function Chat() {
 
     setLoadings(prevLoadings => ({ ...prevLoadings, [chatId]: true }));
 
-    const summaryMessage = {
+    const systemMessage = {
+      role: "system",
+      content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
+    };
+
+    const summaryPromptMessage = {
       role: "user",
       content: summaryPrompt,
     };
   
     // Get the chat instance for the provided chatId
     const chatInstance = chats[chatId];
-    console.log("Chat Instance:", chatInstance);
-  
-    // Log the selected state
-    console.log("Selected State:", selected);
   
     // Extract the IDs from the selected message objects
     const selectedIds = selected.map(msg => msg.id);
   
     // Construct the messageList by iterating over the chatInstance and checking if each message ID exists in the selectedIds
     const messageList = chatInstance
+      .filter(msg => msg.visible)
       .filter(msg => {
-        console.log("Checking Message ID:", msg.id);  // Log the current message's ID
         return selectedIds.includes(msg.id) && msg.visible;
       })
       .map(msg => ({
@@ -260,35 +260,61 @@ export default function Chat() {
         content: msg.content
       }));
   
-    // Log the filtered messages
-    console.log("Filtered Messages:", messageList);
-  
-    // Append the summaryMessage at the end
-    const summarizePrompt = [...messageList, summaryMessage];
-  
-    console.log("Final Message List:", messageList);
+    // Append the summaryMessage at the start
+    const summarizePrompt = [systemMessage, ...messageList, summaryPromptMessage];
     
-    const runAsyncTasks = async () => {
-      await runLLM(summarizePrompt).then(response => {
-        console.log(response);
+    const summaryId = `message-${uuidv4()}`;
+    
+    const summaryMessage = { id: summaryId, role: "summary", content: "", visible: true, child: false, selected: false, children: messageList, cascade: false };
 
-        const summary = { id: `message-${uuidv4()}`, role: "summary", content: String(response), visible: true, child: false, selected: false, children: messageList, cascade: false };
-        setChats(prevChats => {
-          const newChats = { ...prevChats };
+    setStreamingId(summaryId);
+    setChats((prevChats) => {
+      return {
+        ...prevChats,
+        [chatId]: [...prevChats[chatId].filter(msg => !selectedIds.includes(msg.id)), summaryMessage]
+      };
+    });
 
-          // Remove the selected messages from newChats[chatId]
-          newChats[chatId] = newChats[chatId].filter(msg => !selectedIds.includes(msg.id));
+    const response = await fetch("/api/langchain", {
+      method: "POST",
+      body: JSON.stringify({
+        messages: summarizePrompt,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-          // Add the summary message at the beginning of the list
-          newChats[chatId] = [...newChats[chatId],summary];
-          return newChats;
-        });
-        setLoadings(prevLoadings => ({ ...prevLoadings, [chatId]: false }));
+    const reader = response.body.getReader();
+
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      const text = new TextDecoder().decode(value);
+      setChats((prevChats) => {
+        // return the previous chats unchanged if there's no chat with the provided chatId
+        if (!prevChats[chatId]) return prevChats;
+      
+        // map through the messages and update the content of the matching message.
+        const updatedMessages = prevChats[chatId].map(message => 
+          message.id === summaryId 
+            ? { ...message, content: message.content + text }
+            : message
+        );
+      
+        return {
+          ...prevChats,
+          [chatId]: updatedMessages
+        };
       });
-    };
+      
+    }
 
-    runAsyncTasks();
-
+    setLoadings(prevLoadings => ({ ...prevLoadings, [chatId]: false }));
     setSelected([]);
   };
 
@@ -304,7 +330,7 @@ export default function Chat() {
     });
   };
 
-  const handleSend = (chatId) => {
+  const handleSend = async (chatId) => {
 
     const prompt = messages[chatId] ? messages[chatId].trim() : "";
     const visibleMessages = chats[chatId].filter(msg => msg.visible && (msg.content !== ""));
@@ -322,46 +348,82 @@ export default function Chat() {
 
     const userMessage = { id: `message-${uuidv4()}`, role: "user", content: String(prompt), visible: true, child: false, selected: false };
 
-    setChats(prevChats => {
-      const newChats = { ...prevChats };
-      const newChat = [...newChats[chatId]];
+    if (prompt !== "") {
+      setChats((prevChats) => {
+        return {
+          ...prevChats,
+          [chatId]: [...prevChats[chatId], userMessage]
+        };
+      });
+    }
 
-      if (prompt !== "") {
-        newChat.push(userMessage);
+    const currentChat = prompt !== "" ? [...chats[chatId], userMessage] : chats[chatId];
+
+    setMessages(prevMessages => ({ ...prevMessages, [chatId]: '' }));
+
+    const messageList = [systemMessage, ...currentChat
+      .filter(msg => msg.visible)
+      .map(msg => ({
+        role: msg.role === "summary" ? "user" : msg.role,
+        content: msg.content
+      }))
+    ];
+
+    console.log(messageList)
+
+    const messageId = `message-${uuidv4()}`;
+
+    const assistantMessage = { id: messageId, role: "assistant", content: "", visible: true, child: false, selected: false };
+
+    setStreamingId(messageId);
+    setChats((prevChats) => {
+      return {
+        ...prevChats,
+        [chatId]: [...prevChats[chatId], assistantMessage]
+      };
+    });
+
+    const response = await fetch("/api/langchain", {
+      method: "POST",
+      body: JSON.stringify({
+        messages: messageList,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const reader = response.body.getReader();
+
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
       }
 
-      setMessages(prevMessages => ({ ...prevMessages, [chatId]: '' }));
+      const text = new TextDecoder().decode(value);
+      setChats((prevChats) => {
+        // return the previous chats unchanged if there's no chat with the provided chatId
+        if (!prevChats[chatId]) return prevChats;
+      
+        // map through the messages and update the content of the matching message.
+        const updatedMessages = prevChats[chatId].map(message => 
+          message.id === messageId 
+            ? { ...message, content: message.content + text }
+            : message
+        );
+      
+        return {
+          ...prevChats,
+          [chatId]: updatedMessages
+        };
+      });
+      
+    }
 
-      const messageList = [systemMessage, ...newChat
-        .filter(msg => msg.visible)
-        .map(msg => ({
-          role: msg.role === "summary" ? "user" : msg.role,
-          content: msg.content
-        }))];
-
-      setIsTyping(true);
-
-      const runAsyncTasks = async () => {
-        await Promise.all([
-          runLLM(messageList).then(response => {
-            setIsTyping(false);
-            // const responselist = String(response).split(/\r?\n|\r|\n/g);
-            // responselist.forEach((element) => {
-            //   const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(element), visible: true, child: false, selected: false };
-            //   newChat.push(assistantMessage);
-            // });
-            const assistantMessage = { id: `message-${uuidv4()}`, role: "assistant", content: String(response), visible: true, child: false, selected: false };
-            newChat.push(assistantMessage);
-          }),
-        ]);
-        setLoadings(prevLoadings => ({ ...prevLoadings, [chatId]: false }));
-      };
-
-      runAsyncTasks();
-
-      newChats[chatId] = newChat;
-      return newChats;
-    });
+    setStreamingId(null);
+    setLoadings(prevLoadings => ({ ...prevLoadings, [chatId]: false }));
   };
 
   const getTransitionDuration = (index, isOpening) => {
@@ -512,7 +574,7 @@ export default function Chat() {
                                         }}>
                                           <div className="markdown-container">
                                             {
-                                              msg.content.trim() !== '' ?
+                                              msg.content !== '' || streamingId === msg.id ?
                                                 <ReactMarkdown components={components} children={msg.content.toLowerCase().split('\n').map(line => line + '  ').join('\n')} remarkPlugins={remarkGfm} /> :
                                                 <p className='placeholder-markdown' >type a message...</p>
                                             }
@@ -560,7 +622,7 @@ export default function Chat() {
                                                 <div className='message-text' >
                                                   <div className={`markdown-container ${!msg.cascade ? 'markdown-container-contracted' : ''}`}>
                                                   {
-                                                    child.content.trim() !== '' ?
+                                                    child.content !== '' || streamingId === msg.id ?
                                                       (<ReactMarkdown 
                                                           components={components}
                                                           remarkPlugins={remarkGfm}
