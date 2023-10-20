@@ -28,7 +28,8 @@ html, body {
 }
 
 .title {
-  margin-left: 4.2em;
+  margin-top: 4em;
+  margin-left: 4.25em;
   padding: 0;
   text-shadow: 0 0 2em rgb(0, 0, 0, 0.5);
   opacity: 10%;
@@ -57,11 +58,6 @@ html, body {
   margin-left: auto;
   margin-right: auto;
   margin-top: 1em;
-  padding-bottom: 1em;
-}
-
-.input-container input {
-  flex-grow: 1; /* Allows the input to take up remaining space */
 }
 
 .message-list {
@@ -319,22 +315,6 @@ html, body {
   background-color: rgb(250, 250, 250);
 }
 
-.input-container button {
-  
-  /* font-family: var(--font-mono); */
-  transition: transform 0.1s ease-in-out;
-  background-color: rgb(219, 219, 219);
-  border: none; /* Removes the default button border */
-  cursor: pointer; /* Changes the cursor to a hand when hovering over the button */
-  outline: none; /* Removes the focus outline */
-  padding: 1; /* Removes the default button padding */
-  display: flex; /* Makes sure the button contents are centered */
-  align-items: center; /* Vertically center the content */
-  justify-content: center; /* Horizontally center the content */
-  height: 30px;
-  width: 30px;
-}
-
 .input-button:hover {
   color: gray;
 
@@ -346,7 +326,7 @@ html, body {
 }
 
 .input-button {
-  
+  position: relative;
   transition: transform 0.1s ease-in-out;
   background-color: rgb(219, 219, 219);
   border: none; /* Removes the default button border */
@@ -356,16 +336,16 @@ html, body {
   display: flex; /* Makes sure the button contents are centered */
   align-items: center; /* Vertically center the content */
   justify-content: center; /* Horizontally center the content */
-  height: 30px;
-  width: 30px;
   border-radius: 8px;
-
+  width: 40px !important;
+  height: 35px;
   font-size: 16px;
-  width: 50px;
   color: darkgray;
+  box-shadow: none;
 }
 
 .input-button-mid {
+  margin-right: -10px;
   border-radius: 0px;
 }
 
@@ -378,12 +358,11 @@ html, body {
 }
 
 .input-button-right {
-  margin-left: -10px;
+  margin-right: 0.075em;
   border-bottom-left-radius: 0px;
   border-top-left-radius: 0px;
   border-bottom-right-radius: 8px;
   border-top-right-radius: 8px;
-  margin-right: -11.2em;
 }
 
 .global-input-button-add-chat {
@@ -391,7 +370,6 @@ html, body {
   font-weight: 600;
   background-color: rgb(190, 190, 190);
   color: white;
-  width: 30px;
   position: fixed;
   right: 135px;
   bottom: 25px;
@@ -402,7 +380,6 @@ html, body {
   font-weight: 600;
   background-color: rgb(190, 190, 190);
   color: white;
-  width: 30px;
   position: fixed;
   right: 95px;
   bottom: 25px;
@@ -440,31 +417,26 @@ html, body {
 
 .input-button-disabled {
   font-size: 16px;
-  width: 40px;
-  height: 30px;
   border: none;
   color: darkgray;
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: auto;
 }
 
 .input-button-enabled {
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
   font-size: 16px;
-  width: 40px;
-  height: 30px;
   border: none;
   color: darkgray;
 }
 
 .input-box:hover, .input-box:focus {
-  width: 250px;
+  width: 300px;
 }
 
 .input-box {
-
-  width: 200px; /* Set an initial width */
+  width: 250px; /* Set an initial width */
   transition: width 0.3s ease-in-out;
   font-family: 'Inter', sans-serif;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
@@ -473,13 +445,13 @@ html, body {
   background-color: rgb(219, 219, 219);
   border: none;
   outline: none;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
   padding-top: 5px;
   padding-bottom: 5px;
   resize: none;
   line-height: 20px;
-  height: 20px;
+  height: 25px;
   border-radius: 8px;
 }
 
@@ -626,12 +598,13 @@ ul, ol {
 }
 
 .text-area-modal {
-  transform: translate(4em, 2.5em);
+  padding-top: 1em;
+  z-index: 1;
+  position: absolute;
+  transform: translate(-0.55em, 1.75em);
   opacity: 0;
   transition: opacity 0.1s ease-in-out;
-  position: relative;
   pointer-events: none;
-  margin-bottom: 0em;
 }
 
 .text-area-modal:hover {

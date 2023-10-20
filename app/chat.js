@@ -3,9 +3,9 @@
 import DropdownMenu from './components/DropdownMenu';
 import RoleDropdownMenu from './components/RoleDropdownMenu';
 import { runLLM } from './utils/api';
-import { LoadingOutlined, SwitcherOutlined, UndoOutlined, CaretDownOutlined, DownOutlined } from '@ant-design/icons';
+import { LoadingOutlined, SwitcherOutlined, UndoOutlined, CaretDownOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons';
 const antIcon = <LoadingOutlined className='typing-indicator' spin />;
-import { Checkbox, Input, Spin, Button, Space, FloatButton } from 'antd';
+import { Checkbox, Input, Spin, Button, Space, FloatButton, Tooltip, Dropdown, Menu } from 'antd';
 const { TextArea } = Input;
 import 'styles/chat.css';
 import React, { useState, useEffect, useRef } from 'react';
@@ -38,10 +38,6 @@ export default function Chat() {
   const editTextAreaRef = useRef(null);
 
   useEffect(() => {
-    textAreaRef.current.style.height = '20px';
-  }, [])
-
-  useEffect(() => {
     if (editMessageId && editTextAreaRef.current) {
       const textarea = editTextAreaRef.current;
       textarea.focus();
@@ -59,9 +55,7 @@ export default function Chat() {
   };
 
   const handleSummarizeHoverLeave = () => {
-    setTimeout(() => {
-      setHoveredChatId(null);
-    }, 200);
+    setHoveredChatId(null);
   };
 
   const handleMouseEnter = (id) => {
@@ -597,14 +591,38 @@ export default function Chat() {
                 <motion.div layoutId={`input-container-layout-id-${chatId}`} layout transition={{ duration: 0.5 }} className="input-container" key={`input-container-key-${chatId}`} id={`input-container-id-${chatId}`}>
                   <div className="input-container" style={{ marginTop: 'auto' }}>
 
-                    <Button type="primary" icon={<UndoIcon size={16} />} onClick={() => handleChatReset(chatId)} className='input-button input-button-left' title='Reset'>
-                    </Button>
-                    <Button type="primary" icon={<PlusIcon size={24} />} onClick={() => handleNewMessage(chatId)} className='input-button input-button-mid' title='Add Message'>
-                    </Button>
-
-                    <Button onMouseLeave={handleSummarizeHoverLeave} onMouseEnter={(e) => handleSummarizeHover(chatId)} type="primary" title='Summarize' onClick={() => { if (hasSelectedMessage(chatId)) handleSummarize(chatId) }} className={hasSelectedMessage(chatId) ? 'input-button input-button-right' : 'input-button-disabled input-button-right'} icon={<StackIcon size={16} />}>
-                    </Button>
-                    {
+                      <Tooltip title="Reset Chat" color='#505050' mouseEnterDelay='1.0'>
+                        <Button type="primary" icon={<UndoIcon size={16} />} onClick={() => handleChatReset(chatId)} className='input-button input-button-left' >
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="Add Message" color='#505050' mouseEnterDelay='1.0'> 
+                        <Button type="primary" icon={<PlusIcon size={24} />} onClick={() => handleNewMessage(chatId)} className='input-button input-button-mid' >
+                        </Button>
+                      </Tooltip>
+                      <Tooltip title="Summarize" color='#505050' mouseEnterDelay='1.0'>
+                        <Button onMouseLeave={handleSummarizeHoverLeave} onMouseEnter={(e) => handleSummarizeHover(chatId)} type="primary" onClick={() => { if (hasSelectedMessage(chatId)) handleSummarize(chatId) }} className={hasSelectedMessage(chatId) ? 'input-button input-button-mid' : 'input-button-disabled input-button input-button-mid'} icon={<StackIcon size={16} />}>
+                        </Button>
+                      </Tooltip>
+                      <Dropdown
+                        placement="bottom"
+                        overlay={
+                          <Menu
+                            items={[
+                              {
+                                key: '1',
+                                label: 'Test',
+                              },
+                              {
+                                key: '2',
+                                label: 'Test',
+                              },
+                            ]}
+                          />
+                        }
+                        trigger={['click']}
+                      >
+                        <Button type="primary" icon={<EllipsisOutlined size={24}/>} className='input-button input-button-right'/>
+                      </Dropdown>
                       <div className={`text-area-modal ${hoveredChatId === chatId ? 'visible' : ''}`}>
                         <TextArea
                           id={`summary-prompt-text-area-id-${chatId}`}
@@ -613,23 +631,21 @@ export default function Chat() {
                           autoSize
                         />
                       </div>
-                    }
-
-                    <textarea
-                      ref={textAreaRef}
-                      type="text"
-                      className='input-box'
-                      value={messages[chatId] || ''}
-                      onChange={(e) => handleInputChange(e, chatId)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSend(chatId);
-                        }
-                      }}
-                    />
-                    <Button type="primary" icon={<TriangleRightIcon size={24} />} loading={loadings[chatId]} onClick={() => handleSend(chatId)} className='input-button' title='Send'>
-                    </Button>
+                      <TextArea 
+                        className='input-box' 
+                        placeholder="" 
+                        autoSize 
+                        value={messages[chatId] || ''} 
+                        onChange={(e) => handleInputChange(e, chatId)} onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend(chatId);
+                          }
+                        }}/>
+                      <Tooltip title="Send" color='#505050' mouseEnterDelay='1.0'>
+                        <Button type="primary" icon={<TriangleRightIcon size={24} />} loading={loadings[chatId]} onClick={() => handleSend(chatId)} className='input-button' >
+                        </Button>
+                      </Tooltip>
                   </div>
                 </motion.div>
               </div>
