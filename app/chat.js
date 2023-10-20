@@ -154,27 +154,33 @@ export default function Chat() {
     });
   };
 
-  const handleAddChat = () => {
+  const handleAddChat = (rightDirection) => {
+
+    if (rightDirection) {
     setChats(chats => ({
       ...chats,
       [`chat-${uuidv4()}`]: [],
     }));
+    } else {
+      setChats(chats => ({
+        [`chat-${uuidv4()}`]: [],
+        ...chats,
+      }));
+    }
   };
 
-  const handleSubtractChat = () => {
+  const handleSubtractChat = (chatId) => {
+    const chatKeys = Object.keys(chats);
     setChats(chats => {
-      const chatKeys = Object.keys(chats);
-      if (chatKeys.length === 1) {
-        return chats;
+      if (!(chatId in chats) || chatKeys.length === 1) {
+        return chats; // Return unchanged if chatId doesn't exist
       }
-
-      const lastKey = chatKeys[chatKeys.length - 1];
-      const { [lastKey]: _, ...rest } = chats;
-
+  
+      const { [chatId]: _, ...rest } = chats;
+  
       return rest;
     });
   };
-
 
   const handleTotalReset = () => {
     setChats({ chat1: [] });
@@ -652,7 +658,6 @@ export default function Chat() {
                 </Droppable>
                 <motion.div layoutId={`input-container-layout-id-${chatId}`} layout transition={{ duration: 0.5 }} className="input-container" key={`input-container-key-${chatId}`} id={`input-container-id-${chatId}`}>
                   <div className="input-container" style={{ marginTop: 'auto' }}>
-
                       <Tooltip title="Reset Chat" color='#505050' mouseEnterDelay='1.0'>
                         <Button type="primary" icon={<UndoIcon size={16} />} onClick={() => handleChatReset(chatId)} className='input-button input-button-left' >
                         </Button>
@@ -669,14 +674,14 @@ export default function Chat() {
                         placement="bottom"
                         overlay={
                           <Menu
+                            theme='dark'
                             items={[
                               {
                                 key: '1',
-                                label: 'Test',
-                              },
-                              {
-                                key: '2',
-                                label: 'Test',
+                                label: 'Remove Chat',
+                                icon: <DashIcon size={16} />,
+                                danger: true,
+                                onClick: () => handleSubtractChat(chatId),
                               },
                             ]}
                           />
@@ -715,9 +720,13 @@ export default function Chat() {
           </div>
         </DragDropContext>
       </motion.div>
-      <button title='Add Chat' onClick={handleAddChat} className='input-button global-input-button-add-chat'><PlusIcon size={16} /></button>
-      <button title='Subtract Chat' onClick={handleSubtractChat} className='input-button global-input-button-sub-chat'><DashIcon size={16} /></button>
-      <button onClick={handleTotalReset} className='input-button global-input-button-reset'>Reset</button>
+      <Tooltip placement="left" title="Add Chat Right" color='#505050' mouseEnterDelay='1.0'>
+        <Button type="primary" onClick={() => handleAddChat(true)} className='global-input-button-add-chat global-input-button-add-chat-right' icon={<PlusIcon size={16} />}></Button>
+      </Tooltip>
+      <Tooltip placement="right" title="Add Chat Left" color='#505050' mouseEnterDelay='1.0'>
+        <Button type="primary" onClick={() => handleAddChat(false)} className='global-input-button-add-chat global-input-button-add-chat-left' icon={<PlusIcon size={16} />}></Button>
+      </Tooltip>
+      <Button type="primary" danger className='global-input-button-reset' onClick={() => handleTotalReset()} >Reset</Button>
     </div>
   );
 }
