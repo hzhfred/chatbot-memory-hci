@@ -366,10 +366,11 @@ html, body {
 }
 
 .global-input-button-add-chat {
+  z-index: 2;
   font-size: 14px;
   background-color: rgb(190, 190, 190);
   color: white;
-  position: absolute;
+  position: fixed;
   top: 50%;
   width: 25px !important;
   height: 100px !important;
@@ -382,6 +383,7 @@ html, body {
   align-items: center; /* Vertically center the content */
   justify-content: center; /* Horizontally center the content */
   box-shadow: none;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Adds a slight shadow for depth */
 }
 
 .global-input-button-add-chat-right {

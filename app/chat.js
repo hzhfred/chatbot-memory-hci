@@ -526,10 +526,12 @@ export default function Chat() {
                                     <div className="message-role">
                                       
                                       <div className='role-box'>
-                                        <Checkbox
-                                          checked={selected.some(e => e.id === msg.id)}
-                                          onChange={(e) => handleSelect(e.target.checked, msg, chatId)}
-                                        />
+                                        <Tooltip placement="left" title="Select" color='#505050' mouseEnterDelay='1.0'>
+                                          <Checkbox
+                                            checked={selected.some(e => e.id === msg.id)}
+                                            onChange={(e) => handleSelect(e.target.checked, msg, chatId)}
+                                          />
+                                        </Tooltip>
                                         <Dropdown 
                                           placement='bottom'
                                           trigger={['click']}
@@ -557,7 +559,9 @@ export default function Chat() {
                                             />
                                           }
                                         >
-                                          <Button type='text' className='role'>{msg.role}</Button>
+                                          <Tooltip placement="top" title="Change Role" color='#505050' mouseEnterDelay='1.0'>
+                                            <Button type='text' className='role'>{msg.role}</Button>
+                                          </Tooltip>
                                         </Dropdown>
                                       </div>
                                       <DropdownMenu
@@ -596,18 +600,20 @@ export default function Chat() {
                                           }}
                                         />
                                       ) : (
-                                        <div className='message-text' onClick={e => {
-                                          setEdit(msg.content.toLowerCase());
-                                          setEditMessageId(msg.id);
-                                        }}>
-                                          <div className="markdown-container">
-                                            {
-                                              msg.content !== '' || streamingId === msg.id ?
-                                                <ReactMarkdown components={components} children={msg.content.toLowerCase().split('\n').map(line => line + '  ').join('\n')} remarkPlugins={remarkGfm} /> :
-                                                <p className='placeholder-markdown' >type a message...</p>
-                                            }
+                                        <Tooltip placement="right" title="Edit" color='#505050' mouseEnterDelay='1.0'>
+                                          <div className='message-text' onClick={e => {
+                                            setEdit(msg.content.toLowerCase());
+                                            setEditMessageId(msg.id);
+                                          }}>
+                                            <div className="markdown-container">
+                                              {
+                                                msg.content !== '' || streamingId === msg.id ?
+                                                  <ReactMarkdown components={components} children={msg.content.toLowerCase().split('\n').map(line => line + '  ').join('\n')} remarkPlugins={remarkGfm} /> :
+                                                  <p className='placeholder-markdown' >type a message...</p>
+                                              }
+                                            </div>
                                           </div>
-                                        </div>
+                                        </Tooltip>
                                       )}
                                     </div>
                                   </div>
@@ -680,7 +686,7 @@ export default function Chat() {
                 </Droppable>
                 <motion.div layoutId={`input-container-layout-id-${chatId}`} layout transition={{ duration: 0.5 }} className="input-container" key={`input-container-key-${chatId}`} id={`input-container-id-${chatId}`}>
                   <div className="input-container" style={{ marginTop: 'auto' }}>
-                      <Tooltip title="Reset Chat" color='#505050' mouseEnterDelay='1.0'>
+                      <Tooltip placement="left" title="Reset Chat" color='#505050' mouseEnterDelay='1.0'>
                         <Button type="primary" icon={<UndoIcon size={16} />} onClick={() => handleChatReset(chatId)} className='input-button input-button-left' >
                         </Button>
                       </Tooltip>
@@ -731,7 +737,7 @@ export default function Chat() {
                             handleSend(chatId);
                           }
                         }}/>
-                      <Tooltip title="Send" color='#505050' mouseEnterDelay='1.0'>
+                      <Tooltip placement='right' title="Send" color='#505050' mouseEnterDelay='1.0'>
                         <Button type="primary" icon={<TriangleRightIcon size={24} />} loading={loadings[chatId]} onClick={() => handleSend(chatId)} className='input-button' >
                         </Button>
                       </Tooltip>

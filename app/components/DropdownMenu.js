@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { TrashIcon, DuplicateIcon, CheckIcon, CopyIcon, PencilIcon, EyeClosedIcon, EyeIcon } from '@primer/octicons-react';
 import { UndoIcon, KebabHorizontalIcon, TriangleRightIcon, PlusIcon, BookmarkFillIcon, BookmarkIcon,SquareIcon, StackIcon,CheckboxIcon } from '@primer/octicons-react';
+import { Checkbox, Input, Spin, Button, Space, FloatButton, Tooltip, Dropdown, Menu } from 'antd';
 
 const DropdownMenu = ({ chatId, message, onClose, chats, setChats, setDropdownMessageId, setDropdownOpen, setEditMessageId, setEdit}) => {
 
@@ -95,11 +96,17 @@ const DropdownMenu = ({ chatId, message, onClose, chats, setChats, setDropdownMe
 
   return (
     <div className="dropdown-menu">
-      <button title={message.visible ? "Hide" : "Show"} onClick={editVisibility}>
-        {message.visible ? <EyeClosedIcon size={16} /> : <EyeIcon size={16} />}
-      </button>
-      <button title="Duplicate" onClick={duplicateMessage}><DuplicateIcon size={16} /></button>
-      <button title="Delete" onClick={deleteMessage}><TrashIcon size={16} /></button>
+      <Tooltip placement="bottom" title={message.visible ? "Hide" : "Show"} color='#505050' mouseEnterDelay='1.0'>
+        <button onClick={editVisibility}>
+          {message.visible ? <EyeClosedIcon size={16} /> : <EyeIcon size={16} />}
+        </button>
+      </Tooltip>
+      <Tooltip placement="bottom" title="Duplicate" color='#505050' mouseEnterDelay='1.0'>
+        <button onClick={duplicateMessage}><DuplicateIcon size={16} /></button>
+      </Tooltip>
+      <Tooltip placement="bottom" title="Delete" color='#505050' mouseEnterDelay='1.0'>
+        <button onClick={deleteMessage}><TrashIcon size={16} /></button>
+      </Tooltip>
     </div>
   )
 };
