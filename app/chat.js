@@ -21,6 +21,7 @@ export default function Chat() {
   const [streamingId, setStreamingId] = useState(null);
   const [loadings, setLoadings] = useState({});
   const [chats, setChats] = useState({ [`chat-${uuidv4()}`]: [] });
+  const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState({});
   const [editMessageId, setEditMessageId] = useState(null);
   const [dropdownMessageId, setDropdownMessageId] = useState(null);
@@ -138,7 +139,18 @@ export default function Chat() {
   };
 
   const handleNewMessage = (chatId) => {
+
+    const systemMessage = {
+      id: `message-${uuidv4()}`,
+      role: "system",
+      content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
+      visible: true,
+      child: false,
+      selected: false,
+    };
+
     let emptyMessage;
+
     if (!chats[chatId] || chats[chatId].length === 0 || (chats[chatId][chats[chatId].length - 1].role === "assistant")) {
       emptyMessage = { id: `message-${uuidv4()}`, role: "user", content: "", visible: true, child: false, selected: false };
     } else {
@@ -147,7 +159,7 @@ export default function Chat() {
 
     setChats({
       ...chats,
-      [chatId]: chats[chatId] ? [...chats[chatId], emptyMessage] : [emptyMessage]
+      [chatId]: chats[chatId].length === 0 ? [systemMessage, ...chats[chatId], emptyMessage] : [...chats[chatId], emptyMessage]
     });
   };
 
@@ -236,11 +248,6 @@ export default function Chat() {
 
     setLoadings(prevLoadings => ({ ...prevLoadings, [chatId]: true }));
 
-    const systemMessage = {
-      role: "system",
-      content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
-    };
-
     const summaryPromptMessage = {
       role: "user",
       content: summaryPrompt,
@@ -264,7 +271,7 @@ export default function Chat() {
       }));
   
     // Append the summaryMessage at the start
-    const summarizePrompt = [systemMessage, ...messageList, summaryPromptMessage];
+    const summarizePrompt = [...messageList, summaryPromptMessage];
     
     const summaryId = `message-${uuidv4()}`;
     
@@ -345,26 +352,38 @@ export default function Chat() {
     setLoadings(prevLoadings => ({ ...prevLoadings, [chatId]: true }));
 
     const systemMessage = {
+      id: `message-${uuidv4()}`,
       role: "system",
       content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
+      visible: true,
+      child: false,
+      selected: false,
     };
 
     const userMessage = { id: `message-${uuidv4()}`, role: "user", content: String(prompt), visible: true, child: false, selected: false };
 
-    if (prompt !== "") {
+    const currentChat = prompt !== "" ? [...chats[chatId], userMessage] : chats[chatId];
+
+    if (chats[chatId].length === 0) {
+      currentChat.unshift(systemMessage);
       setChats((prevChats) => {
         return {
           ...prevChats,
-          [chatId]: [...prevChats[chatId], userMessage]
+          [chatId]: [systemMessage, ...prevChats[chatId]]
         };
       });
     }
 
-    const currentChat = prompt !== "" ? [...chats[chatId], userMessage] : chats[chatId];
+    setChats((prevChats) => {
+      return {
+        ...prevChats,
+        [chatId]: [...prevChats[chatId], userMessage]
+      };
+    });
 
     setMessages(prevMessages => ({ ...prevMessages, [chatId]: '' }));
 
-    const messageList = [systemMessage, ...currentChat
+    const messageList = [...currentChat
       .filter(msg => msg.visible)
       .map(msg => ({
         role: msg.role === "summary" ? "user" : msg.role,
