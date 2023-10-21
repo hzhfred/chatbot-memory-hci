@@ -318,6 +318,7 @@ html, body {
 }
 
 .input-button {
+  z-index: 2;
   position: relative;
   transition: transform 0.1s ease-in-out;
   background-color: rgb(219, 219, 219);

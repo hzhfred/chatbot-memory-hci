@@ -520,6 +520,7 @@ export default function Chat() {
                                         }}>
                                           {msg.role}
                                         </span>
+                                        <Dropdown></Dropdown>
                                       </div>
                                       
                                       <AnimatePresence>
