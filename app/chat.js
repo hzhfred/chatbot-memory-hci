@@ -23,13 +23,10 @@ export default function Chat() {
   const [chats, setChats] = useState({ [`chat-${uuidv4()}`]: [] });
   const [messages, setMessages] = useState({});
   const [editMessageId, setEditMessageId] = useState(null);
-  const [edit, setEdit] = useState("")
-  const [hoveredMessageId, setHoveredMessageId] = useState(null);
   const [dropdownMessageId, setDropdownMessageId] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [roleDropdownId, setRoleDropdownId] = useState(null);
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+  const [edit, setEdit] = useState("")
+  const [hoveredMessageId, setHoveredMessageId] = useState(null);
   const [selected, setSelected] = useState([]);
   const [summaryPrompt, setSummaryPrompt] = useState('Create a very concise summary of the above messages.');
   const [hoveredChatId, setHoveredChatId] = useState(null);
@@ -104,17 +101,17 @@ export default function Chat() {
     };
   };
 
-  const handleRoleDropdownToggle = (id) => {
-    if (roleDropdownOpen) {
-      setRoleDropdownId(null);
-      setRoleDropdownOpen(false);
-      if (roleDropdownId != id) {
-        setRoleDropdownId(id);
-        setRoleDropdownOpen(true);
-      };
-    } else {
-      setRoleDropdownId(id);
-      setRoleDropdownOpen(true);
+  const handleRole = (role, msgId, chatId) => {
+    return () => {
+      setChats(prevChats => {
+        const newChats = { ...prevChats };
+        const chat = newChats[chatId];
+        const messageIndex = chat.findIndex(msg => msg.id === msgId);
+        if (messageIndex !== -1) {
+          chat[messageIndex].role = role;
+        }
+        return newChats;
+      });
     };
   };
 
@@ -514,31 +511,36 @@ export default function Chat() {
                                           checked={selected.some(e => e.id === msg.id)}
                                           onChange={(e) => handleSelect(e.target.checked, msg, chatId)}
                                         />
-                                        <span className="role" onClick={(e) => {
-                                          
-                                          handleRoleDropdownToggle(msg.id)
-                                        }}>
-                                          {msg.role}
-                                        </span>
-                                        <Dropdown></Dropdown>
-                                      </div>
-                                      
-                                      <AnimatePresence>
-                                        {roleDropdownId === msg.id && roleDropdownOpen && (
-                                          <motion.div
-                                            initial={{ opacity: 0, scale: 0.95, y: -5 }}
-                                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                                            exit={{ opacity: 0, scale: 0.95, y: -5 }}
-                                            transition={{ duration: 0.1 }}
-                                          >
-                                            <RoleDropdownMenu
-                                              className='role-dropdown-menu'
-                                              message={msg}
-                                              onClose={handleRoleDropdownToggle}
+                                        <Dropdown 
+                                          placement='bottom'
+                                          trigger={['click']}
+                                          overlay={
+                                            <Menu
+                                              theme='dark'
+                                              items={
+                                                [
+                                                  {
+                                                    key: '1', 
+                                                    label: 'user', 
+                                                    onClick: handleRole('user', msg.id, chatId)
+                                                  },
+                                                  {
+                                                    key: '2', 
+                                                    label: 'assistant', 
+                                                    onClick: handleRole('assistant', msg.id, chatId)},
+                                                  {
+                                                    key: '3', 
+                                                    label: 'system', 
+                                                    onClick: handleRole('system', msg.id, chatId)
+                                                  }
+                                                ]
+                                              }
                                             />
-                                          </motion.div>
-                                        )}
-                                      </AnimatePresence>
+                                          }
+                                        >
+                                          <Button type='text' className='role'>{msg.role}</Button>
+                                        </Dropdown>
+                                      </div>
                                       <DropdownMenu
                                         className='dropdown-menu'
                                         chatId={chatId}
