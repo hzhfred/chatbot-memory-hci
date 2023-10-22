@@ -380,12 +380,15 @@ export default function Chat() {
       });
     }
 
-    setChats((prevChats) => {
-      return {
-        ...prevChats,
-        [chatId]: [...prevChats[chatId], userMessage]
-      };
-    });
+    if (prompt !== "") {
+      
+      setChats((prevChats) => {
+        return {
+          ...prevChats,
+          [chatId]: [...prevChats[chatId], userMessage]
+        };
+      });
+    }
 
     setMessages(prevMessages => ({ ...prevMessages, [chatId]: '' }));
 
