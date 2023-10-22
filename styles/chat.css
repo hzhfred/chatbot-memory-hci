@@ -501,6 +501,25 @@ html, body {
   font-size: 10px;
 }
 
+.dropdown-menu-ellipsis {
+  margin-top: 0.5em;
+  font-weight: 500;
+  position: relative;
+  padding: 1em;
+  background-color: rgb(235, 235, 235);
+  /* border-top-left-radius: 0.4em;
+  border-top-right-radius: 0.4em; */
+  border-radius: 1em;
+}
+
+.zap-icon {
+  color: rgb(113, 226, 188);
+}
+
+.north-star-icon {
+  color: rgb(144, 125, 255);
+}
+
 .dropdown-menu {
   display: flex;
   flex-direction: row;

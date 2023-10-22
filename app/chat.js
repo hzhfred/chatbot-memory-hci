@@ -2,22 +2,23 @@
 
 import DropdownMenu from './components/DropdownMenu';
 import RoleDropdownMenu from './components/RoleDropdownMenu';
-import { LoadingOutlined, SwitcherOutlined, UndoOutlined, CaretDownOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { LoadingOutlined, SwitcherOutlined, UndoOutlined, CaretDownOutlined, DownOutlined, EllipsisOutlined, BarsOutlined, AppstoreOutlined } from '@ant-design/icons';
 const antIcon = <LoadingOutlined className='typing-indicator' spin />;
-import { Checkbox, Input, Spin, Button, Space, FloatButton, Tooltip, Dropdown, Menu } from 'antd';
+import { Checkbox, Input, Spin, Button, Space, FloatButton, Tooltip, Dropdown, Menu, Segmented, Col, InputNumber, Row, Slider } from 'antd';
 const { TextArea } = Input;
 import 'styles/chat.css';
 import React, { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import ReactMarkdown from 'react-markdown';
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, color } from "framer-motion";
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon } from '@primer/octicons-react';
+import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon, ZapIcon, NorthStarIcon, TrashIcon } from '@primer/octicons-react';
 
 export default function Chat() {
+  const [models, setModels] = useState({});
   const [streamingId, setStreamingId] = useState(null);
   const [loadings, setLoadings] = useState({});
   const [chats, setChats] = useState({ [`chat-${uuidv4()}`]: [] });
@@ -289,6 +290,7 @@ export default function Chat() {
       method: "POST",
       body: JSON.stringify({
         messages: summarizePrompt,
+        modelName: models[chatId] || 'gpt-3.5-turbo',
       }),
       headers: {
         "Content-Type": "application/json",
@@ -338,6 +340,10 @@ export default function Chat() {
       }
       return newChats;
     });
+  };
+
+  const handleSetModel = (modelName, chatId) => {
+    setModels( prevModels => ({ ...prevModels, [chatId]: modelName }));
   };
 
   const handleSend = async (chatId) => {
@@ -409,6 +415,7 @@ export default function Chat() {
       method: "POST",
       body: JSON.stringify({
         messages: messageList,
+        modelName: models[chatId] || 'gpt-3.5-turbo',
       }),
       headers: {
         "Content-Type": "application/json",
@@ -701,20 +708,36 @@ export default function Chat() {
                       <Dropdown
                         placement="bottom"
                         overlay={
-                          <Menu
-                            theme='dark'
-                            items={[
-                              {
-                                key: '1',
-                                label: 'Remove Chat',
-                                icon: <DashIcon size={16} />,
-                                danger: true,
-                                onClick: () => handleSubtractChat(chatId),
-                              },
-                            ]}
-                          />
+                          <Space size={10} direction='vertical' className='dropdown-menu-ellipsis'>
+                            <Segmented
+                              defaultValue={"gpt-3.5-turbo"}
+                              onChange={(selectedValue) => handleSetModel(selectedValue, chatId)}
+                              options={[
+                                {
+                                  label: 'GPT-3.5',
+                                  value: 'gpt-3.5-turbo',
+                                  icon: <ZapIcon size={16} className='zap-icon'/>,
+                                },
+                                {
+                                  label: 'GPT-4',
+                                  value: 'gpt-4',
+                                  icon: <NorthStarIcon size={16} className='north-star-icon'/>,
+                                },
+                              ]}
+                            />
+                            <Button 
+                              style={ { width: '13em', fontWeight: "500" } }
+                              type='primary'
+                              icon={<TrashIcon size={16} className='trash-icon'/>}
+                              danger={true}
+                              onClick={() => handleSubtractChat(chatId)}
+                              disabled={Object.keys(chats).length === 1}
+                            >
+                                Remove Chat
+                            </Button>
+                          </Space>
                         }
-                        trigger={['click']}
+                        trigger={['hover']}
                       >
                         <Button type="primary" icon={<EllipsisOutlined size={24}/>} className='input-button input-button-right'/>
                       </Dropdown>
