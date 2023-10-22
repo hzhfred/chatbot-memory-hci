@@ -12,7 +12,7 @@
     "@ant-design/icons": "^5.1.4",
     "@primer/octicons-react": "^19.2.0",
     "@types/react-syntax-highlighter": "^15.5.7",
-    "antd": "^5.7.0",
+    "antd": "^5.10.2",
     "framer-motion": "^10.12.16",
     "langchain": "^0.0.169",
     "next": "^13.4.5",

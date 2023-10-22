@@ -4,7 +4,7 @@ import DropdownMenu from './components/DropdownMenu';
 import RoleDropdownMenu from './components/RoleDropdownMenu';
 import { LoadingOutlined, SwitcherOutlined, UndoOutlined, CaretDownOutlined, DownOutlined, EllipsisOutlined, BarsOutlined, AppstoreOutlined } from '@ant-design/icons';
 const antIcon = <LoadingOutlined className='typing-indicator' spin />;
-import { Checkbox, Input, Spin, Button, Space, FloatButton, Tooltip, Dropdown, Menu, Segmented, Col, InputNumber, Row, Slider } from 'antd';
+import { Checkbox, Input, Spin, Button, Space, FloatButton, Tooltip, Dropdown, Menu, Segmented, Col, InputNumber, Row, Slider, Pagination, Flex } from 'antd';
 const { TextArea } = Input;
 import 'styles/chat.css';
 import React, { useState, useEffect, useRef } from 'react';
@@ -15,7 +15,7 @@ import { motion, AnimatePresence, color } from "framer-motion";
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon, ZapIcon, NorthStarIcon, TrashIcon } from '@primer/octicons-react';
+import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon, ZapIcon, NorthStarIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@primer/octicons-react';
 
 export default function Chat() {
   const [models, setModels] = useState({});
@@ -81,13 +81,25 @@ export default function Chat() {
       const chat = newChats[chatId];
       const messageIndex = chat.findIndex(msg => msg.id === messageId);
       if (messageIndex !== -1) {
-        chat[messageIndex].content = edit;
+        const currentMessage = chat[messageIndex];
+        // If the 'edits' property exists
+        if (currentMessage.edits && currentMessage.content.toLowerCase() !== edit.toLowerCase()) {
+          currentMessage.edits.push(edit);
+          currentMessage.currentEdit = currentMessage.edits.length;
+        } else if (currentMessage.content !== '' && currentMessage.content.toLowerCase() !== edit.toLowerCase()) {
+          // If the 'edits' property doesn't exist, create it
+          currentMessage.edits = [currentMessage.content, edit];
+          currentMessage.currentEdit = currentMessage.edits.length;
+        }
+        // Update the message content with the edit
+        currentMessage.content = edit;
       }
       return newChats;
     });
     setEditMessageId(null);
     setEdit('');
   };
+  
 
   const handleDropdownToggle = (id) => {
     if (dropdownOpen) {
@@ -144,7 +156,7 @@ export default function Chat() {
     const systemMessage = {
       id: `message-${uuidv4()}`,
       role: "system",
-      content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
+      content: "You respond in full markdown format as concisely as possible.",
       visible: true,
       child: false,
       selected: false,
@@ -191,6 +203,30 @@ export default function Chat() {
       return rest;
     });
   };
+
+  const handleEditPage = (direction, chatId, msgId) => {
+    setChats(prevChats => {
+      const newChats = { ...prevChats };
+      const chat = newChats[chatId];
+      const messageIndex = chat.findIndex(msg => msg.id === msgId);
+      if (messageIndex !== -1) {
+        const currentMessage = chat[messageIndex];
+        if (direction === "left") {
+          if (currentMessage.currentEdit > 1) {
+            currentMessage.currentEdit -= 1;
+            currentMessage.content = currentMessage.edits[currentMessage.currentEdit - 1];
+          }
+        } else if (direction === "right") {
+          if (currentMessage.currentEdit < currentMessage.edits.length) {
+            currentMessage.currentEdit += 1;
+            currentMessage.content = currentMessage.edits[currentMessage.currentEdit - 1];
+          }
+        }
+      }
+      return newChats;
+    });
+  }
+
 
   const handleTotalReset = () => {
     setChats({ chat1: [] });
@@ -360,7 +396,7 @@ export default function Chat() {
     const systemMessage = {
       id: `message-${uuidv4()}`,
       role: "system",
-      content: "You are a helpful assistant. Respond as concisely as possible in full markdown format.",
+      content: "You respond in full markdown format as concisely as possible.",
       visible: true,
       child: false,
       selected: false,
@@ -594,22 +630,23 @@ export default function Chat() {
                                     </div>
                                     <div className="message-content">
                                       {editMessageId === msg.id ? (
-                                        <TextArea
-                                          ref={editTextAreaRef}
-                                          autoSize
-                                          size='small'
-                                          className='edit-box'
-                                          type='text'
-                                          defaultValue={edit}
-                                          onChange={e => { handleEditChange(e) }}
-                                          onKeyDown={e => {
-                                            if (e.key === 'Enter' && !e.shiftKey) {
-                                              e.preventDefault();
-                                              handleEdit(chatId, msg.id, edit);
-                                            }
-                                          }}
-                                        />
+                                          <TextArea
+                                            ref={editTextAreaRef}
+                                            autoSize
+                                            size='small'
+                                            className='edit-box'
+                                            type='text'
+                                            defaultValue={edit}
+                                            onChange={e => { handleEditChange(e) }}
+                                            onKeyDown={e => {
+                                              if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                handleEdit(chatId, msg.id, edit);
+                                              }
+                                            }}
+                                          />
                                       ) : (
+                                        <Flex vertical>
                                         <Tooltip placement="right" title="Edit" color='#505050' mouseEnterDelay='1.0'>
                                           <div className='message-text' onClick={e => {
                                             setEdit(msg.content.toLowerCase());
@@ -624,6 +661,24 @@ export default function Chat() {
                                             </div>
                                           </div>
                                         </Tooltip>
+                                        {msg.edits && 
+                                          <Space direction='horizontal' size={5} align='center' className='edits-pagination'>
+                                            <button 
+                                            className='edits-navigation-button' 
+                                            onClick={() => handleEditPage("left", chatId, msg.id)}
+                                            >
+                                              <ChevronLeftIcon size={12}/>
+                                            </button>
+                                            {msg.currentEdit} / {msg.edits.length}
+                                            <button 
+                                            className='edits-navigation-button' 
+                                            onClick={() => handleEditPage("right", chatId, msg.id)}
+                                            >
+                                              <ChevronRightIcon size={12}/>
+                                            </button>
+                                          </Space>
+                                          }
+                                        </Flex>
                                       )}
                                     </div>
                                   </div>
@@ -713,6 +768,7 @@ export default function Chat() {
                         overlay={
                           <Space size={10} direction='vertical' className='dropdown-menu-ellipsis'>
                             <Segmented
+                              className='model-dropdown'
                               defaultValue={"gpt-3.5-turbo"}
                               onChange={(selectedValue) => handleSetModel(selectedValue, chatId)}
                               options={[

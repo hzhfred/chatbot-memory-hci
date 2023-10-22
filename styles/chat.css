@@ -140,7 +140,6 @@ html, body {
 }
 
 .message-content {
-  
   color: rgb(110, 110, 110);
   justify-content: space-between;
   text-align: left; /* Aligns text to the right */
@@ -179,6 +178,36 @@ html, body {
 /* li:hover .message-actions {
   opacity: 1; /* Show the button on hover 
 } */
+
+.model-dropdown {
+  user-select: none;
+}
+
+.edits-pagination {
+  margin-top: 1em;
+  margin-left: 12.5em;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgb(175, 175, 175);
+}
+
+.edits-navigation-button {
+  display: grid;
+  align-items: center;
+  color: rgb(175, 175, 175);
+  font-weight: 500;
+  background-color: #ffffff; /* Changes the background color when hovered */
+  border-radius: 0.5em; /* Rounds the corners */
+  border: none; /* Removes the default button border */
+  cursor: pointer; /* Changes the cursor to a hand when hovering over the button */
+  text-align: left; /* Aligns the text to the left */
+  padding: 0.1em; /* Adds some space around the text */
+  transition: transform 0.1s ease-in-out;
+}
+
+.edits-navigation-button:hover {
+  background-color: #f6f6f6; /* Changes the background color when hovered */
+}
 
 .role {
   display: flex;
@@ -292,6 +321,7 @@ html, body {
 }
 
 .message-text {
+  font-size: 16px;
   font-family: 'Inter', sans-serif;
   transition: transform 0.1s ease-in-out;
   cursor: text;
