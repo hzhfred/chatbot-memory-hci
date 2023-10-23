@@ -1,1 +1,33 @@
+/* globals.css */
+:root {
+    /* Default to light theme */
+    --primary-bg: white;
+    --primary-text: rgb(110, 110, 110);
+    --title: black;
+    --input-button: rgb(219, 219, 219);
+    --message-bg: white;
+    --message-hover-bg: rgb(245, 245, 245);
+    --theme-button: #c4c4e7;
+    --add-chat-button: rgb(190, 190, 190);
+    --scrollbar-hover: rgb(199, 199, 199);
+    --ellipsis-input-menu: rgb(235, 235, 235);
+    --model-bg: rgb(219, 219, 219);
+    --summary-dropdown-button: rgb(240, 240, 240);
+    --summary-dropdown-button-hover: rgb(230, 230, 230);
+}
 
+[data-theme='dark'] {
+    --primary-bg: rgb(52,53,65);
+    --primary-text: #c5c5d2;
+    --title: white;
+    --input-button: rgb(68,70,84);
+    --message-bg: rgb(68,70,84);
+    --message-hover-bg: rgb(59, 60, 71);
+    --theme-button: #5b5b8b;
+    --add-chat-button: rgb(91, 91, 109);
+    --scrollbar-hover: rgb(97, 99, 119);
+    --ellipsis-input-menu: rgb(68,70,84);
+    --model-bg: rgb(105, 109, 128);
+    --summary-dropdown-button: rgb(82, 84, 100);
+    --summary-dropdown-button-hover: rgb(97, 99, 117);
+}

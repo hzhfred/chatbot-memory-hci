@@ -4,9 +4,10 @@ import DropdownMenu from './components/DropdownMenu';
 import RoleDropdownMenu from './components/RoleDropdownMenu';
 import { LoadingOutlined, SwitcherOutlined, UndoOutlined, CaretDownOutlined, DownOutlined, EllipsisOutlined, BarsOutlined, AppstoreOutlined } from '@ant-design/icons';
 const antIcon = <LoadingOutlined className='typing-indicator' spin />;
-import { Checkbox, Input, Spin, Button, Space, FloatButton, Tooltip, Dropdown, Menu, Segmented, Col, InputNumber, Row, Slider, Pagination, Flex } from 'antd';
+import { Checkbox, Input, Spin, Button, Space, FloatButton, Tooltip, Dropdown, Menu, Segmented, Col, InputNumber, Row, Slider, Pagination, Flex, ConfigProvider } from 'antd';
 const { TextArea } = Input;
 import 'styles/chat.css';
+import 'styles/globals.css';
 import React, { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -15,7 +16,8 @@ import { motion, AnimatePresence, color } from "framer-motion";
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon, ZapIcon, NorthStarIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@primer/octicons-react';
+import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon, ZapIcon, NorthStarIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, SunIcon, MoonIcon } from '@primer/octicons-react';
+import { dark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 export default function Chat() {
   const [models, setModels] = useState({});
@@ -34,6 +36,7 @@ export default function Chat() {
   const [hoveredChatId, setHoveredChatId] = useState(null);
   const textAreaRef = useRef(null);
   const editTextAreaRef = useRef(null);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     if (editMessageId && editTextAreaRef.current) {
@@ -41,6 +44,13 @@ export default function Chat() {
       textarea.focus();
     }
   }, [editMessageId, edit]);
+
+  const toggleTheme = () => {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    setDarkMode(newTheme === "dark" ? true : false);
+    document.documentElement.setAttribute("data-theme", newTheme);
+  };
 
   const hasSelectedMessage = (chatId) => {
     const chat = chats[chatId];
@@ -574,6 +584,7 @@ export default function Chat() {
                                       <div className='role-box'>
                                         <Tooltip placement="left" title="Select" color='#505050' mouseEnterDelay='1.0'>
                                           <Checkbox
+                                            className='checkbox'
                                             checked={selected.some(e => e.id === msg.id)}
                                             onChange={(e) => handleSelect(e.target.checked, msg, chatId)}
                                           />
@@ -767,33 +778,56 @@ export default function Chat() {
                         placement="bottom"
                         overlay={
                           <Space size={10} direction='vertical' className='dropdown-menu-ellipsis'>
-                            <Segmented
-                              className='model-dropdown'
-                              defaultValue={"gpt-3.5-turbo"}
-                              onChange={(selectedValue) => handleSetModel(selectedValue, chatId)}
-                              options={[
-                                {
-                                  label: 'GPT-3.5',
-                                  value: 'gpt-3.5-turbo',
-                                  icon: <ZapIcon size={16} className='zap-icon'/>,
+                            <ConfigProvider
+                              theme={{
+                                components: {
+                                  Segmented: {
+                                    itemColor: darkMode ? '#c5c5d2' : '#6e6e6e',
+                                    itemHoverColor: darkMode ? '#c5c5d2' : '#6e6e6e',
+                                    itemSelectedColor: darkMode ? '#c5c5d2' : '#6e6e6e',
+                                    itemSelectedBg: darkMode ? '#5a5d70' : '#e3e3e3',
+                                  },
                                 },
-                                {
-                                  label: 'GPT-4',
-                                  value: 'gpt-4',
-                                  icon: <NorthStarIcon size={16} className='north-star-icon'/>,
-                                },
-                              ]}
-                            />
-                            <Button 
-                              style={ { width: '13em', fontWeight: "500" } }
-                              type='primary'
-                              icon={<TrashIcon size={16} className='trash-icon'/>}
-                              danger={true}
-                              onClick={() => handleSubtractChat(chatId)}
-                              disabled={Object.keys(chats).length === 1}
+                              }}
                             >
-                                Remove Chat
-                            </Button>
+                              <Segmented
+                                className='model-dropdown'
+                                defaultValue={"gpt-3.5-turbo"}
+                                onChange={(selectedValue) => handleSetModel(selectedValue, chatId)}
+                                options={[
+                                  {
+                                    label: 'GPT-3.5',
+                                    value: 'gpt-3.5-turbo',
+                                    icon: <ZapIcon size={16} className='zap-icon'/>,
+                                  },
+                                  {
+                                    label: 'GPT-4',
+                                    value: 'gpt-4',
+                                    icon: <NorthStarIcon size={16} className='north-star-icon'/>,
+                                  },
+                                ]}
+                              />
+                            </ConfigProvider>
+                            <ConfigProvider
+                              theme={{
+                                components: {
+                                  Segmented: {
+                                    borderColorDisabled: darkMode ? '#ffffff' : '#ffffff',
+                                  },
+                                },
+                              }}
+                            >
+                              <Button
+                                className='remove-chat-button'
+                                type='primary'
+                                icon={<TrashIcon size={16} className='trash-icon'/>}
+                                danger={true}
+                                onClick={() => handleSubtractChat(chatId)}
+                                disabled={Object.keys(chats).length === 1}
+                              >
+                                  Remove Chat
+                              </Button>
+                            </ConfigProvider>
                           </Space>
                         }
                         trigger={['hover']}
@@ -802,6 +836,7 @@ export default function Chat() {
                       </Dropdown>
                       <div className={`text-area-modal ${hoveredChatId === chatId ? 'visible' : ''}`}>
                         <TextArea
+                          className='summary-box'
                           id={`summary-prompt-text-area-id-${chatId}`}
                           defaultValue={summaryPrompt}
                           onChange={(e) => setSummaryPrompt(e.target.value)}
@@ -837,6 +872,7 @@ export default function Chat() {
         <Button type="primary" onClick={() => handleAddChat(false)} className='global-input-button-add-chat global-input-button-add-chat-left' icon={<PlusIcon size={16} />}></Button>
       </Tooltip>
       <Button type="primary" danger className='global-input-button-reset' onClick={() => handleTotalReset()} >Reset</Button>
+      <Button icon={darkMode ? <SunIcon/> : <MoonIcon/>  } type="primary" className="global-input-button-theme" onClick={toggleTheme} ></Button>
     </div>
   );
 }

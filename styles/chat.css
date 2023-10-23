@@ -1,5 +1,7 @@
 html, body {
+  /* transition: background-color 0.1s ease-in-out; */
   height: 100%;
+  background-color: var(--primary-bg);
   }
 
 .chat-container {
@@ -13,7 +15,6 @@ html, body {
   min-height: 1em; /* Adjust this as needed */
   color: rgb(61, 61, 61);
   min-width: 300px;
-
 }
 
 .app-container {
@@ -28,6 +29,7 @@ html, body {
 }
 
 .title {
+  color: var(--title);
   margin-top: 4em;
   margin-left: 4.25em;
   padding: 0;
@@ -88,7 +90,7 @@ html, body {
   align-items: left;
   transition: transform 0.2s ease-in-out;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 5px 15px;
-  background-color: rgb(255, 255, 255);
+  background-color: var(--message-bg);
   padding-left: 20px;
   padding-top: 25px;
   padding-bottom: 10px;
@@ -98,7 +100,7 @@ html, body {
 
 .summary-message-wrapper {
   transform: translateX(17.1em);
-
+  background-color: var(--message-bg);
   z-index: 2;
   position: relative;
   padding-bottom: 25px;
@@ -121,7 +123,7 @@ html, body {
   align-items: left;
   transition: transform 0.2s ease-in-out;
 
-  background-color: rgb(255, 255, 255);
+  background-color: var(--message-bg);
   padding-left: 20px;
   padding-top: 25px;
   padding-bottom: 10px;
@@ -179,8 +181,14 @@ html, body {
   opacity: 1; /* Show the button on hover 
 } */
 
+.remove-chat-button {
+  width: 13em;
+  font-weight: 500;
+}
+
 .model-dropdown {
   user-select: none;
+  background-color: var(--model-bg);
 }
 
 .edits-pagination {
@@ -214,12 +222,12 @@ html, body {
   justify-content: center;  /* Horizontally center */
   align-items: center; /* Vertically center */
   font-size: 18px;
-  color: rgb(110, 110, 110);
   font-weight: 600; /* Make text bolder */
   border-radius: 8px;
   padding: 0.3em;
   padding-top: 0.1em;
   margin-left: 0.3em;
+  color: var(--primary-text);
 }
 
 .role:hover {
@@ -258,6 +266,7 @@ html, body {
 }
 
 .role-box{
+  color: var(--primary-text);
   display: flex;
 }
 
@@ -290,7 +299,7 @@ html, body {
   /* border-radius: 0.4em; */
   transition: transform 0.1s ease-in-out;
   box-shadow: 0 3px 15px rgba(0, 0, 0, 0.025);
-  background-color: rgb(240, 240, 240);
+  background-color: var(--summary-dropdown-button);
   color: rgb(179, 179, 179);
   text-align: center;
   left: 0%;
@@ -304,7 +313,7 @@ html, body {
 }
 
 .summary-dropdown:hover {
-  background-color: rgb(233, 233, 233);
+  background-color: var(--summary-dropdown-button-hover);
   color: rgb(160, 160, 160);
   cursor: pointer;
 }
@@ -333,11 +342,11 @@ html, body {
   margin-top: -1em;
   margin-right: 1em;
   border-radius: 0.5em;
-  color: rgb(110, 110, 110);
+  color: var(--primary-text);
 }
 
 .message-text:hover {
-  background-color: rgb(250, 250, 250);
+  background-color: var(--message-hover-bg);
 }
 
 .input-button:hover {
@@ -354,7 +363,7 @@ html, body {
   z-index: 2;
   position: relative;
   transition: transform 0.1s ease-in-out, opacity 0.2s ease-in-out;
-  background-color: rgb(219, 219, 219);
+  background-color: var(--input-button);
   border: none; /* Removes the default button border */
   cursor: pointer; /* Changes the cursor to a hand when hovering over the button */
   outline: none; /* Removes the focus outline */
@@ -398,7 +407,7 @@ html, body {
 .global-input-button-add-chat {
   z-index: 2;
   font-size: 14px;
-  background-color: rgb(190, 190, 190);
+  background-color: var(--add-chat-button);
   color: white;
   position: fixed;
   top: 50%;
@@ -442,6 +451,23 @@ html, body {
   position: fixed;
   right: 2em;
   bottom: 2em;
+}
+
+.global-input-button-theme {
+  border-radius: 0.7em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  border: none; /* Removes the default button border */
+  outline: none; /* Removes the focus outline */
+  box-shadow: none;
+  font-size: 14px;
+  width: auto;
+  position: fixed;
+  right: 2em;
+  top: 2em;
+  background-color: var(--theme-button);
 }
 
 .global-input-button-reset:active {
@@ -492,9 +518,9 @@ html, body {
   transition: width 0.3s ease-in-out;
   font-family: 'Inter', sans-serif;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a slight shadow for depth */
-  color: gray;
+  color: var(--primary-text);
   font-size: 16px;
-  background-color: rgb(219, 219, 219);
+  background-color: var(--input-button);
   border: none;
   outline: none;
   padding-left: 15px;
@@ -536,7 +562,7 @@ html, body {
   font-weight: 500;
   position: relative;
   padding: 1em;
-  background-color: rgb(235, 235, 235);
+  background-color: var(--ellipsis-input-menu);
   /* border-top-left-radius: 0.4em;
   border-top-right-radius: 0.4em; */
   border-radius: 1em;
@@ -576,10 +602,10 @@ html, body {
 }
 
 .dropdown-menu button:hover {
-  color: grey;
+  color: var(--primary-text);
   text-align: center;
   border-radius: 0.5em; /* Rounds the corners */
-  background-color: #f6f6f6; /* Changes the background color when hovered */
+  background-color: var(--message-hover-bg); /* Changes the background color when hovered */
 }
 
 .dropdown-menu button:active {
@@ -653,19 +679,24 @@ ul, ol {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgb(224, 224, 224); 
+  background-color: var(--input-button); 
   border-radius: 10px;
   border: transparent;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(201, 201, 201); 
+  background-color: var(--scrollbar-hover); 
 
 }
 
 .typing-indicator {
   font-size: 24px;
   color: gray;
+}
+
+.summary-box {
+  background-color: var(--message-bg);
+  color: var(--primary-text);
 }
 
 .text-area-modal {
