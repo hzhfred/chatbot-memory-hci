@@ -156,7 +156,7 @@ export default function Chat() {
     const systemMessage = {
       id: `message-${uuidv4()}`,
       role: "system",
-      content: "You respond in full markdown format as concisely as possible.",
+      content: "You must respond in full markdown format as concisely as possible.",
       visible: true,
       child: false,
       selected: false,
@@ -396,7 +396,7 @@ export default function Chat() {
     const systemMessage = {
       id: `message-${uuidv4()}`,
       role: "system",
-      content: "You respond in full markdown format as concisely as possible.",
+      content: "You must respond in full markdown format as concisely as possible.",
       visible: true,
       child: false,
       selected: false,
@@ -649,7 +649,7 @@ export default function Chat() {
                                         <Flex vertical>
                                         <Tooltip placement="right" title="Edit" color='#505050' mouseEnterDelay='1.0'>
                                           <div className='message-text' onClick={e => {
-                                            setEdit(msg.content.toLowerCase());
+                                            setEdit(msg.content);
                                             setEditMessageId(msg.id);
                                           }}>
                                             <div className="markdown-container">
