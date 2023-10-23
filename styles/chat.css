@@ -353,7 +353,7 @@ html, body {
 .input-button {
   z-index: 2;
   position: relative;
-  transition: transform 0.1s ease-in-out;
+  transition: transform 0.1s ease-in-out, opacity 0.2s ease-in-out;
   background-color: rgb(219, 219, 219);
   border: none; /* Removes the default button border */
   cursor: pointer; /* Changes the cursor to a hand when hovering over the button */
