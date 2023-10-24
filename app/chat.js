@@ -35,21 +35,58 @@ export default function Chat() {
   const [hoveredChatId, setHoveredChatId] = useState(null);
   const textAreaRef = useRef(null);
   const editTextAreaRef = useRef(null);
-  const [darkMode, setDarkMode] = useState(false);
 
+  const getInitialDarkMode = () => {
+    if (typeof window !== 'undefined') {
+      const storedTheme = localStorage.getItem('theme');
+      return storedTheme === 'dark';
+    }
+    return false;
+  }
+  
+  const [darkMode, setDarkMode] = useState(getInitialDarkMode);
+  
+  // Function to set the data-theme attribute based on darkMode state
+  const setDocumentTheme = (isDarkMode) => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute("data-theme", isDarkMode ? "dark" : "light");
+    }
+  };
+  
   useEffect(() => {
     if (editMessageId && editTextAreaRef.current) {
       const textarea = editTextAreaRef.current;
       textarea.focus();
     }
   }, [editMessageId, edit]);
-
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Get the theme from local storage on component mount
+      const storedTheme = localStorage.getItem('theme');
+      const isDarkMode = storedTheme === 'dark';
+      setDarkMode(isDarkMode);
+  
+      // Also set the document attribute when retrieving from local storage
+      setDocumentTheme(isDarkMode);
+    }
+  }, []);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Save the theme to local storage whenever it changes
+      localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+      
+      // Also set the document attribute every time darkMode state changes
+      setDocumentTheme(darkMode);
+    }
+  }, [darkMode]);
+  
   const toggleTheme = () => {
-    const currentTheme = document.documentElement.getAttribute("data-theme");
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-    setDarkMode(newTheme === "dark" ? true : false);
-    document.documentElement.setAttribute("data-theme", newTheme);
-  };
+    // Since we're using state to manage the theme, you only need to toggle the state here
+    // The effects will handle updating localStorage and the document attribute
+    setDarkMode(prevMode => !prevMode);
+  };  
 
   const hasSelectedMessage = (chatId) => {
     const chat = chats[chatId];
