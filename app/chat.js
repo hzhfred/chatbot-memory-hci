@@ -525,6 +525,13 @@ export default function Chat() {
           {children}
         </code>
       )
+    },
+    ol({ node, inline, className, children, ...props }) {
+      return (
+        <ol className={className} {...props}>
+          {children}
+        </ol>
+      )
     }
   }
 
@@ -683,7 +690,7 @@ export default function Chat() {
                                             <div className="markdown-container">
                                               {
                                                 msg.content !== '' || streamingId === msg.id ?
-                                                  <ReactMarkdown components={components} children={msg.content.toLowerCase().split('\n').map(line => line + '  ').join('\n')} remarkPlugins={remarkGfm} /> :
+                                                  <ReactMarkdown components={components} children={msg.content.toLowerCase()} remarkPlugins={remarkGfm} /> :
                                                   <p className='placeholder-markdown' >type a message...</p>
                                               }
                                             </div>
@@ -716,16 +723,16 @@ export default function Chat() {
                                       {msg.children && msg.children.map((child, index) => (
                                         <li key={child.id} id={child.id} >
                                           <div className={
-                                              msg.cascade ? 'parent-message-wrapper child-message-expanded' : 'parent-message-wrapper child-message-retracted'
+                                              msg.cascade ? 'child-message-wrapper child-message-expanded' : 'child-message-wrapper child-message-retracted'
                                           } 
                                           style={{
                                               zIndex: msg.children.length - index, 
-                                              boxShadow: `0px 5px 15px 0px rgba(0, 0, 0, ${(0.1 / msg.children.length) * (msg.children.length - index)})`,
+                                              boxShadow: `0px 5px 15px 0px rgba(0, 0, 0, ${(darkMode? 0.05 : 0.1 / msg.children.length) * (msg.children.length - index)})`,
                                               transitionDuration: getTransitionDuration(index, msg.cascade)
                                           }}>
                                             <div className="message-role">
-                                              <div className='role-box'>
-                                                  {child.role}
+                                              <div className='role-box' style={{opacity: 0.5}}>
+                                                <Button type='text' className='role'>{child.role}</Button>
                                               </div>
                                             </div>
                                             <div className="message-content">
@@ -746,14 +753,14 @@ export default function Chat() {
                                                   }}
                                                 />
                                               ) : (
-                                                <div className='message-text' >
+                                                <div className='message-text' style={{opacity: 0.5}} >
                                                   <div className={`markdown-container ${!msg.cascade ? 'markdown-container-contracted' : ''}`}>
                                                   {
                                                     child.content !== '' || streamingId === msg.id ?
                                                       (<ReactMarkdown 
                                                           components={components}
                                                           remarkPlugins={remarkGfm}
-                                                          children={child.content.toLowerCase().split('\n').map(line => line + '  ').join('\n')}
+                                                          children={child.content.toLowerCase()}
                                                       />) : (
                                                       <p className='placeholder-markdown'>type a message...</p>)
                                                   }
@@ -887,7 +894,9 @@ export default function Chat() {
         <Button type="primary" onClick={() => handleAddChat(false)} className='global-input-button-add-chat global-input-button-add-chat-left' icon={<PlusIcon size={16} />}></Button>
       </Tooltip>
       <Button type="primary" danger className='global-input-button-reset' onClick={() => handleTotalReset()} >Reset</Button>
+      <Tooltip placement="left" title="Toggle Dark Mode" color='#505050' mouseEnterDelay='1.0'>
       <Button icon={darkMode ? <SunIcon/> : <MoonIcon/>  } type="primary" className="global-input-button-theme" onClick={toggleTheme} ></Button>
+      </Tooltip>
     </div>
   );
 }

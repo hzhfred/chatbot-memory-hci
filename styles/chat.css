@@ -66,16 +66,13 @@ html, body {
 .message-list {
   padding: 0; /* Remove padding */
   width: fit-content; /* Shrink wrap content */
+  display: flex; /* TODO: using `block` causes jitters */
+  flex-direction: column;
+  list-style-type: none;
 }
 .all-message-list {
   padding: 0; /* Remove padding */
   width: fit-content; /* Shrink wrap content */
-}
-
-.message-list li {
-  display: flex; /* TODO: using `block` causes jitters */
-  justify-content: center;
-  align-items: flex-start;
 }
 
 .message-role {
@@ -102,7 +99,6 @@ html, body {
 
 .summary-message-wrapper {
   transition: background-color 0.2s ease-in-out;
-  transform: translateX(17.1em);
   background-color: var(--message-bg);
   z-index: 2;
   position: relative;
@@ -112,36 +108,35 @@ html, body {
 .summary-children-container {
   position: relative;
   z-index: 1;
-  transform: translateX(-17.15em);
-  margin-top: 7em;
-  opacity: 50%;
-  margin-bottom: 1em;
 }
 
-.parent-message-wrapper {
+.summary-children-container li, ul {
+  list-style-type: none;
+}
+
+.child-message-wrapper {
   position: relative;
   opacity: 1;
   font-size: 16px;
   display: flex;
   align-items: left;
-  transition: transform 0.2s ease-in-out, background-color 0.2 ease-in-out;
-
+  transition: transform 0.2s ease-in-out, background-color 1s ease-in-out, margin-top 2s ease-in-out, margin-bottom 5s ease-in-out;
   background-color: var(--message-bg);
-  padding-left: 20px;
-  padding-top: 25px;
-  padding-bottom: 10px;
   border-radius: 20px;
   pointer-events: none;
+  padding-left: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 1em;
 }
 
 .child-message-retracted {
-  transition: margin-top 2s ease-in-out;
   margin-top: -5em;
+  transition: margin-top 2s ease-in-out;
 }
 
 .child-message-expanded {
   transition: margin-top 2s ease-in-out;
-  margin-top: 1em;
 }
 
 .message-content {
@@ -526,6 +521,7 @@ html, body {
 }
 
 .input-box {
+  overflow: hidden;
   width: 250px; /* Set an initial width */
   transition: width 0.3s ease-in-out, color 0.2s ease-in-out, background-color 0.2s ease-in-out;
   font-family: 'Inter', sans-serif;
@@ -546,6 +542,7 @@ html, body {
 }
 
 .edit-box {
+  overflow: hidden;
   width: 25em;
   font-family: 'Inter', sans-serif;
   transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
@@ -652,13 +649,26 @@ html, body {
   margin-block-end: 1em;
 }
 
-.markdown-container li {
+.markdown-container li, ol, ul {
   justify-content: left;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+}
+
+.markdown-container code {
+  font-size: 14px;
+  transform: translateY(-0.2em);
+  margin-left: 0.05em;
+  margin-right: 0.05em;
+  background-color: var(--primary-bg);
+  padding: 0.2em;
+  padding-top: 0em;
+  padding-bottom: 0em;
+  border-radius: 0.3em;
 }
 
 ul, ol {
   padding: 0;
-  margin-block-end: 1em;
 }
 
 .placeholder-markdown {
@@ -685,8 +695,7 @@ ul, ol {
 
 /* This is for Chrome, Safari and Opera */
 *::-webkit-scrollbar {
-  width: 12px;
-  
+  width: 0.5em;
 }
 
 *::-webkit-scrollbar-track {
@@ -697,7 +706,7 @@ ul, ol {
 *::-webkit-scrollbar-thumb {
   transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
   background-color: var(--input-button); 
-  border-radius: 10px;
+  border-radius: 5px;
   border: transparent;
   
 }
@@ -719,6 +728,7 @@ ul, ol {
 }
 
 .text-area-modal {
+  overflow: hidden;
   padding-top: 1em;
   z-index: 1;
   position: absolute;

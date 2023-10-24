@@ -14,6 +14,7 @@
     --model-bg: rgb(219, 219, 219);
     --summary-dropdown-button: rgb(240, 240, 240);
     --summary-dropdown-button-hover: rgb(230, 230, 230);
+    --code: rgb(235, 235, 235);
 }
 
 [data-theme='dark'] {
@@ -22,7 +23,7 @@
     --title: white;
     --input-button: rgb(68,70,84);
     --message-bg: rgb(68,70,84);
-    --message-hover-bg: rgb(82, 83, 99);
+    --message-hover-bg: rgb(76, 77, 92);
     --theme-button: #5b5b8b;
     --add-chat-button: rgb(91, 91, 109);
     --scrollbar-hover: rgb(97, 99, 119);
