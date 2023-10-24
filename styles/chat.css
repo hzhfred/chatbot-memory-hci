@@ -60,7 +60,6 @@ html, body {
   gap: 10px; /* Provides space between the elements */
   margin-left: auto;
   margin-right: auto;
-  margin-top: 1em;
 }
 
 .message-list {
@@ -639,14 +638,11 @@ html, body {
 .markdown-container h5,
 .markdown-container h6,
 .markdown-container pre {
-  margin-top: 0px;
-  padding-top: 0px;
-  margin-bottom: 5px;
+  margin-bottom: 1em;
 }
 
 .markdown-container p {
   margin-block-start: 0em;
-  margin-block-end: 1em;
 }
 
 .markdown-container li, ol, ul {
@@ -660,7 +656,8 @@ html, body {
   transform: translateY(-0.2em);
   margin-left: 0.05em;
   margin-right: 0.05em;
-  background-color: var(--primary-bg);
+  margin-bottom: 2em;
+  background-color: var(--code);
   padding: 0.2em;
   padding-top: 0em;
   padding-bottom: 0em;
@@ -695,7 +692,8 @@ ul, ol {
 
 /* This is for Chrome, Safari and Opera */
 *::-webkit-scrollbar {
-  width: 0.5em;
+  width: 0.75em;
+  height: 0.75em;
 }
 
 *::-webkit-scrollbar-track {
@@ -705,8 +703,8 @@ ul, ol {
 
 *::-webkit-scrollbar-thumb {
   transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-  background-color: var(--input-button); 
-  border-radius: 5px;
+  background-color: var(--scrollbar); 
+  border-radius: 10px;
   border: transparent;
   
 }

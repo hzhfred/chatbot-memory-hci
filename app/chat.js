@@ -80,8 +80,6 @@ export default function Chat() {
 
   const handleEditChange = (e) => {
     setEdit(e.target.value);
-    e.target.style.height = '20px';
-    e.target.style.height = `${e.target.scrollHeight - 10}px`;
   };
 
   const handleEdit = (chatId, messageId, edit) => {
