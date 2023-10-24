@@ -204,7 +204,7 @@ html, body {
   align-items: center;
   color: rgb(175, 175, 175);
   font-weight: 500;
-  background-color: #ffffff; /* Changes the background color when hovered */
+  background-color: var(--message-bg); /* Changes the background color when hovered */
   border-radius: 0.5em; /* Rounds the corners */
   border: none; /* Removes the default button border */
   cursor: pointer; /* Changes the cursor to a hand when hovering over the button */
@@ -214,7 +214,7 @@ html, body {
 }
 
 .edits-navigation-button:hover {
-  background-color: #f6f6f6; /* Changes the background color when hovered */
+  background-color: var(--message-hover-bg); /* Changes the background color when hovered */
 }
 
 .role {
@@ -232,7 +232,8 @@ html, body {
 
 .role:hover {
   cursor: pointer;
-  background-color: whitesmoke;
+  background-color: var(--message-hover-bg) !important;
+  color: var(--primary-text) !important;
 }
 
 .role-dropdown-menu {
@@ -408,7 +409,7 @@ html, body {
   z-index: 2;
   font-size: 14px;
   background-color: var(--add-chat-button);
-  color: white;
+  color: var(--primary-text);
   position: fixed;
   top: 50%;
   width: 25px !important;
@@ -534,16 +535,16 @@ html, body {
 }
 
 .edit-box {
-  width: 100%;
+  width: 25em;
   font-family: 'Inter', sans-serif;
-  color: rgb(110, 110, 110);
+  color: var(--primary-text);
   font-size: 16px;
-  background-color: whitesmoke;
+  background-color: var(--message-hover-bg);
   border: none;
   outline: none;
   padding-left: 1em;
   padding-right: -1em;
-  padding-top: 0.5em;
+  padding-top: 0.8em;
   padding-bottom: 0.8em;
   margin-top: -1em;
   margin-bottom: 0.1em;
@@ -642,9 +643,8 @@ html, body {
 }
 
 ul, ol {
-  list-style: none;
   padding: 0;
-  margin: 0;
+  margin-block-end: 1em;
 }
 
 .placeholder-markdown {
@@ -672,21 +672,23 @@ ul, ol {
 /* This is for Chrome, Safari and Opera */
 *::-webkit-scrollbar {
   width: 12px;
+  
 }
 
 *::-webkit-scrollbar-track {
-  background: transparent; 
+  background: transparent;
+  
 }
 
 *::-webkit-scrollbar-thumb {
   background-color: var(--input-button); 
   border-radius: 10px;
   border: transparent;
+  
 }
 
 *::-webkit-scrollbar-thumb:hover {
   background-color: var(--scrollbar-hover); 
-
 }
 
 .typing-indicator {

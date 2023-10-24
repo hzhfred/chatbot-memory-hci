@@ -15,9 +15,8 @@ import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence, color } from "framer-motion";
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon, ZapIcon, NorthStarIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, SunIcon, MoonIcon } from '@primer/octicons-react';
-import { dark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { coy, atomDark, vs, vscDarkPlus, oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { UndoIcon, TriangleRightIcon, PlusIcon, StackIcon, DuplicateIcon, DashIcon, ZapIcon, NorthStarIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, SunIcon, MoonIcon, CheckIcon } from '@primer/octicons-react';
 
 export default function Chat() {
   const [models, setModels] = useState({});
@@ -520,7 +519,7 @@ export default function Chat() {
     code({ node, inline, className, children, ...props }) {
       const match = /language-(\w+)/.exec(className || '')
       return !inline && match ? (
-        <SyntaxHighlighter wrapLines={true} style={coy} language={match[1]} PreTag="div" children={String(children).replace(/\n$/, '')} {...props} />
+        <SyntaxHighlighter wrapLines={true} style={ darkMode ? oneDark : oneLight } language={match[1]} PreTag="div" children={String(children).replace(/\n$/, '')} {...props} />
       ) : (
         <code className={className} {...props}>
           {children}
@@ -580,14 +579,22 @@ export default function Chat() {
                                   }>
                                     
                                     <div className="message-role">
-                                      
                                       <div className='role-box'>
                                         <Tooltip placement="left" title="Select" color='#505050' mouseEnterDelay='1.0'>
+                                        <ConfigProvider
+                                          theme={{
+                                            token: {
+                                              colorBgContainer: darkMode ? '#444654' : '#ffffff',
+
+                                            },
+                                          }}
+                                        >
                                           <Checkbox
                                             className='checkbox'
                                             checked={selected.some(e => e.id === msg.id)}
                                             onChange={(e) => handleSelect(e.target.checked, msg, chatId)}
                                           />
+                                        </ConfigProvider>
                                         </Tooltip>
                                         <Dropdown 
                                           placement='bottom'
@@ -617,7 +624,7 @@ export default function Chat() {
                                           }
                                         >
                                           <Tooltip placement="top" title="Change Role" color='#505050' mouseEnterDelay='1.0'>
-                                            <Button type='text' className='role'>{msg.role}</Button>
+                                              <Button type='text' className='role'>{msg.role}</Button>
                                           </Tooltip>
                                         </Dropdown>
                                       </div>
@@ -810,10 +817,8 @@ export default function Chat() {
                             </ConfigProvider>
                             <ConfigProvider
                               theme={{
-                                components: {
-                                  Segmented: {
-                                    borderColorDisabled: darkMode ? '#ffffff' : '#ffffff',
-                                  },
+                                token: {
+                                  colorBgContainerDisabled: darkMode ? '#bdbdbd' : '#ffffff',
                                 },
                               }}
                             >

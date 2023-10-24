@@ -6,7 +6,7 @@
     --title: black;
     --input-button: rgb(219, 219, 219);
     --message-bg: white;
-    --message-hover-bg: rgb(245, 245, 245);
+    --message-hover-bg: rgb(250, 250, 250);
     --theme-button: #c4c4e7;
     --add-chat-button: rgb(190, 190, 190);
     --scrollbar-hover: rgb(199, 199, 199);
@@ -22,7 +22,7 @@
     --title: white;
     --input-button: rgb(68,70,84);
     --message-bg: rgb(68,70,84);
-    --message-hover-bg: rgb(59, 60, 71);
+    --message-hover-bg: rgb(82, 83, 99);
     --theme-button: #5b5b8b;
     --add-chat-button: rgb(91, 91, 109);
     --scrollbar-hover: rgb(97, 99, 119);
