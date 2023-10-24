@@ -596,6 +596,15 @@ export default function Chat() {
                                           />
                                         </ConfigProvider>
                                         </Tooltip>
+                                        <ConfigProvider
+                                          theme={{
+                                            token: {
+                                              colorBgElevated: darkMode ? '#64667d' : '#ffffff',
+                                              colorText: darkMode ? '#c5c5d2' : '#6e6e6e',
+                                              controlItemBgHover: darkMode ? '#56576b' : '#f5f5f5',
+                                            },
+                                          }}
+                                        >
                                         <Dropdown 
                                           placement='bottom'
                                           trigger={['click']}
@@ -627,6 +636,7 @@ export default function Chat() {
                                               <Button type='text' className='role'>{msg.role}</Button>
                                           </Tooltip>
                                         </Dropdown>
+                                        </ConfigProvider>
                                       </div>
                                       <DropdownMenu
                                         className='dropdown-menu'
