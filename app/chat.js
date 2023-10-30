@@ -200,7 +200,7 @@ export default function Chat() {
     const systemMessage = {
       id: `message-${uuidv4()}`,
       role: "system",
-      content: "You must respond in full markdown format as concisely as possible.",
+      content: "Hi there ! I'm a helpful assistant.",
       visible: true,
       child: false,
       selected: false,
@@ -440,7 +440,7 @@ export default function Chat() {
     const systemMessage = {
       id: `message-${uuidv4()}`,
       role: "system",
-      content: "You must respond in full markdown format as concisely as possible.",
+      content: "Hi there ! I'm a helpful assistant.",
       visible: true,
       child: false,
       selected: false,
