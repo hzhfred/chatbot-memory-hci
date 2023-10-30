@@ -200,7 +200,7 @@ export default function Chat() {
     const systemMessage = {
       id: `message-${uuidv4()}`,
       role: "system",
-      content: "Hi there ! I'm a helpful assistant.",
+      content: "You are a helpful assistant that respond in full markdown.",
       visible: true,
       child: false,
       selected: false,
@@ -440,7 +440,7 @@ export default function Chat() {
     const systemMessage = {
       id: `message-${uuidv4()}`,
       role: "system",
-      content: "Hi there ! I'm a helpful assistant.",
+      content: "You are a helpful assistant that respond in full markdown.",
       visible: true,
       child: false,
       selected: false,
